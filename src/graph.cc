@@ -70,8 +70,10 @@ Graph::Graph(const std::string &filename, bool is_query) {
 
   fin >> type >> graph_id_ >> num_vertices_;
 
+  // Initialize ead adj_list as the number of vertices
   adj_list.resize(num_vertices_);
 
+  // initialize size
   start_offset_.resize(num_vertices_ + 1);
   label_.resize(num_vertices_);
 
@@ -92,6 +94,7 @@ Graph::Graph(const std::string &filename, bool is_query) {
       label_[id] = l;
       label_set.insert(l);
     } else if (type == 'e') {
+        // add edge to adf_list
       Vertex v1, v2;
       Label l;
       fin >> v1 >> v2 >> l;
