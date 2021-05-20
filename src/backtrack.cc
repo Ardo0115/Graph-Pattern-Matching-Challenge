@@ -13,7 +13,7 @@ Vertex Backtrack::findExtendable(const Graph &query, const CandidateSet &cs) {
     // TODO
     // extendable candidate 숫자를 기준으로 선택하는 함수로 변경하기
     int count = INT_MAX;
-    Vertex minCandidateSizeVertex;
+    Vertex minCandidateSizeVertex = -1; // TODO 여기서 segmentation fault 발생
     int size;
     for (Vertex u : extendable){
         size = cs.GetCandidateSize(u);
@@ -54,12 +54,12 @@ std::vector<Vertex> Backtrack::getParentList(const Graph &graph, Vertex index) {
     return  neighbors;
 }
 
-std::vector<Vertex> Backtrack::modifyExtendable(const Graph &graph, std::vector<Vertex> extendableQueryNodes) {
+std::vector<Vertex> Backtrack::modifyExtendable(const Graph &graph, std::vector<Vertex> extendableQueryNodes, std::map<Vertex, Vertex> partialEmbedding) {
     for (Vertex extend : extendableQueryNodes){
         std::vector<Vertex> parentList = getParentList(graph, extend);
         for (Vertex parent : parentList){
             if (partialEmbedding.find(parent) == partialEmbedding.end()){
-                // remove current extendable vertex from the extendable list
+                // remove current extendable vertex(which do not have all its parent vertex in partial embedding) from the extendable list
                 extendableQueryNodes.erase(std::remove(extendableQueryNodes.begin(), extendableQueryNodes.end(), extend), extendableQueryNodes.end());
                 break;
             }
@@ -68,24 +68,19 @@ std::vector<Vertex> Backtrack::modifyExtendable(const Graph &graph, std::vector<
     return extendableQueryNodes;
 }
 
-void Backtrack::backTrack(const Graph &data, const Graph &query,
-                          const CandidateSet &cs) {
-
-
+void Backtrack::backTrack(const Graph &data, const Graph &query, const CandidateSet &cs, std::map<Vertex, Vertex> partialEmbeddingM) {
 
     // query graph is already in DAG format
-    if (partialEmbedding.size() == query.GetNumVertices()){
-        // TODO 1
+    if (partialEmbeddingM.size() == query.GetNumVertices()){
         // report M
-//        std::sort(partialEmbedding.begin(), partialEmbedding.end());
         std::cout << "a ";
-        for (std::pair<Vertex, Vertex> pair : partialEmbedding){
+        for (std::pair<Vertex, Vertex> pair : partialEmbeddingM){
             std::cout << pair.second << " ";
         }
         std::cout << std::endl;
-    } else if (partialEmbedding.empty()){
+    } else if (partialEmbeddingM.empty()){
 
-        /* TODO 2
+        /*
          * foreach v in C(r) do {
          *  M <- {(r,v)}};
          *  Mark v as visited;
@@ -102,12 +97,11 @@ void Backtrack::backTrack(const Graph &data, const Graph &query,
 
 
         for (int i = 0; i < rootCandidateSize; ++i) {
-            partialEmbedding.clear();
             Vertex v = cs.GetCandidate(0,i);
 
-            partialEmbedding[0] = v;
+            partialEmbeddingM[0] = v;
             visitedSet.insert(v);
-            Backtrack::backTrack(data, query, cs);
+            Backtrack::backTrack(data, query, cs, partialEmbeddingM);
             visitedSet.erase(visitedSet.find(v));
 
         }
@@ -116,7 +110,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query,
 
     } else {
 
-        /* TODO 3
+        /*
          * u <- extendable vertex with min weight w_M(u) or |C(u)|;
          * foreach v in C_M(u) do
          *  if v is unvisited then
@@ -127,50 +121,60 @@ void Backtrack::backTrack(const Graph &data, const Graph &query,
          *      */
 
         // select and remove from extendable node
+        // TODO 단순히 candidate 전체를 보는 게 아니라 extendable 한 candidate를 보도록하는 로직 추가해야함
         Vertex u = findExtendable(query, cs);
+        // no extendable vertex
+        if (u == -1) return;
 
         int candidateSize = cs.GetCandidateSize(u);
-        // TODO 단순히 candidate 전체를 보는 게 아니라 extendable 한 candidate를 보도록하는 로직 추가해야함
+        bool dataGraphParentNotConnected = false;
+
         for (int j = 0; j < candidateSize; ++j) {
             Vertex v = cs.GetCandidate(u, j);
 
-            if (visitedSet.count(v) == 0){
-                std::vector<Vertex> parentQueryVertices = getParentList(query, u);
+
+            std::vector<Vertex> parentQueryVertices = getParentList(query, u);
                 for (Vertex parentQuery : parentQueryVertices){
-                    if (data.IsNeighbor(partialEmbedding[parentQuery], v) == false){
-                        continue;
+                    // TODO fix memory access issue
+                    // partialEmbeddingM might not have element at parentQuery
+                    if (/*partialEmbeddingM.find(parentQuery) == partialEmbeddingM.end() || */data.IsNeighbor(partialEmbeddingM[parentQuery], v) == false){
+                        dataGraphParentNotConnected = true;
+                        break;
                     }
                 }
+                if (dataGraphParentNotConnected){
+                    dataGraphParentNotConnected = false;
+                    continue;
+                }
 
-
-
-
-                partialEmbedding[u] = v;
+            if (visitedSet.count(v) == 0) {
+                std::map<Vertex, Vertex> newPartialEmbedding(partialEmbeddingM);
+                newPartialEmbedding[u] = v;
                 visitedSet.insert(v);
-                std::cout << partialEmbedding.size() << std::endl;
 
                 // TODO 이 부분에 extendableQueryNodes 중에서 부모가 전부 partial Embedding에 들어가있는 애들만 추가하도록 하는 로직 추가해야함
                 // TODO extendable revision
                 std::vector<Vertex> extendableQueryNodes = getChildList(query, u);
-                extendableQueryNodes = modifyExtendable(query, extendableQueryNodes);
+                extendableQueryNodes = modifyExtendable(query, extendableQueryNodes, newPartialEmbedding);
                 extendable.insert(extendable.end(), extendableQueryNodes.begin(), extendableQueryNodes.end());
 
-                Backtrack::backTrack(data, query, cs);
+                Backtrack::backTrack(data, query, cs, newPartialEmbedding);
                 visitedSet.erase(visitedSet.find(v));
+                }
             }
         }
 
 
     }
 
-}
+
 
 void Backtrack::PrintAllMatches(const Graph &data, const Graph &query, const CandidateSet &cs) {
     std::cout << "t " << query.GetNumVertices() << "\n";
     // implement your code here.
-    backTrack(data, query, cs);
+    std::map<Vertex, Vertex> emptyPartialEmbedding;
+    backTrack(data, query, cs, emptyPartialEmbedding);
 }
-
 
 
 
