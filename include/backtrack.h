@@ -17,18 +17,20 @@ class Backtrack {
   Backtrack();
   ~Backtrack();
   void PrintAllMatches(const Graph &data, const Graph &query, const CandidateSet &cs);
-  void backTrack(const Graph &data, const Graph &query, const CandidateSet &cs);
+  void backTrack(const Graph &data, const Graph &query, const CandidateSet &cs, std::map<Vertex, Vertex> &M);
 
   Vertex findExtendable(const Graph &query,
                         const CandidateSet &cs);
+  Vertex findMinExtendable(const Graph &query, const CandidateSet &cs, const std::map<Vertex, Vertex> &M);
 
   std::vector<Vertex> getChildList(const Graph &graph, Vertex index);
   std::vector<Vertex> getParentList(const Graph &graph, Vertex index);
   std::vector<Vertex> modifyExtendable(const Graph &graph ,std::vector<Vertex> extendableQueryNodes);
+  std::vector<Vertex> getCandidatesM_u(const Graph &graph, const CandidateSet &cs, const std::map<Vertex, Vertex> &M, Vertex &u);
 
 //  std::vector<std::pair<Vertex, Vertex>> partialEmbedding;
-  std::map<Vertex, Vertex> partialEmbedding;
-  std::vector<Vertex> extendable;
+//  std::map<Vertex, Vertex> partialEmbedding;
+ // std::vector<Vertex> extendable; // query node extendable
   std::set<Vertex> visitedSet;
   std::map<Vertex, std::vector<Vertex>> extendableMap;
 
