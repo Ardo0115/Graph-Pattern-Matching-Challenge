@@ -10,6 +10,7 @@
 #include "common.h"
 #include "graph.h"
 #include "map"
+#include "MapAndSet.h"
 
 
 class Backtrack {
@@ -17,10 +18,9 @@ class Backtrack {
   Backtrack();
   ~Backtrack();
   void PrintAllMatches(const Graph &data, const Graph &query, const CandidateSet &cs);
-  void backTrack(const Graph &data, const Graph &query, const CandidateSet &cs, std::map<Vertex, Vertex> partialEmbeddingM);
+  void backTrack(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet partialEmbeddingM);
 
-  Vertex findExtendable(const Graph &query,
-                        const CandidateSet &cs);
+  std::map<Vertex, std::vector<Vertex>> findCandidate(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet partialEmbedding);
 
   std::vector<Vertex> getChildList(const Graph &graph, Vertex index);
   std::vector<Vertex> getParentList(const Graph &graph, Vertex index);

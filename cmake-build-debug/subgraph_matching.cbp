@@ -82,6 +82,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="C:/Users/jkj72/Desktop/graphChallenge/Graph-Pattern-Matching-Challenge/include/MapAndSet.h">
+			<Option target="program"/>
+		</Unit>
 		<Unit filename="C:/Users/jkj72/Desktop/graphChallenge/Graph-Pattern-Matching-Challenge/main/main.cc">
 			<Option target="program"/>
 		</Unit>

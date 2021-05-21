@@ -6,6 +6,16 @@
 
 #IncludeRegexTransform: 
 
+../include/MapAndSet.h
+candidate_set.h
+../include/candidate_set.h
+common.h
+../include/common.h
+graph.h
+../include/graph.h
+map
+../include/map
+
 ../include/backtrack.h
 candidate_set.h
 ../include/candidate_set.h
@@ -15,6 +25,8 @@ graph.h
 ../include/graph.h
 map
 ../include/map
+MapAndSet.h
+../include/MapAndSet.h
 
 ../include/candidate_set.h
 common.h
