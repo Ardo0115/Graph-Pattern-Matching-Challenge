@@ -24,10 +24,13 @@ class Backtrack {
 
   std::vector<Vertex> getChildList(const Graph &graph, Vertex index);
   std::vector<Vertex> getParentList(const Graph &graph, Vertex index);
+  std::vector<Vertex> getAllCandidate(const CandidateSet &cs, Vertex queryVertex);
   std::vector<Vertex> modifyExtendable(const Graph &graph ,std::vector<Vertex> extendableQueryNodes, std::map<Vertex, Vertex> partialEmbedding);
 
+  std::map<Vertex, std::map<Vertex, unsigned int>> buildWeightCS(const Graph &data, const Graph &query, const CandidateSet &cs);
 
-  std::set<Vertex> extendable; // consider only query node
+
+  std::map<Vertex, std::map<Vertex, unsigned int>> weight;
   std::set<Vertex> visitedSet;
   std::map<Vertex, std::vector<Vertex>> extendableMap;
 

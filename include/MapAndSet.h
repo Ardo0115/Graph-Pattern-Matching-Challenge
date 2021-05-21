@@ -13,7 +13,7 @@
 class MapAndSet {
     public:
     MapAndSet() {};
-    MapAndSet(MapAndSet& another){
+    MapAndSet(const MapAndSet& another){
         this->PartialEmbedding = another.PartialEmbedding;
         this->extendable = another.extendable;
     }
