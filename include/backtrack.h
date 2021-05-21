@@ -27,7 +27,7 @@ class Backtrack {
   std::vector<Vertex> modifyExtendable(const Graph &graph ,std::vector<Vertex> extendableQueryNodes, std::map<Vertex, Vertex> partialEmbedding);
 
 
-  std::vector<Vertex> extendable; // consider only query node
+  std::set<Vertex> extendable; // consider only query node
   std::set<Vertex> visitedSet;
   std::map<Vertex, std::vector<Vertex>> extendableMap;
 

@@ -13,7 +13,7 @@ Vertex Backtrack::findExtendable(const Graph &query, const CandidateSet &cs) {
     // TODO
     // extendable candidate 숫자를 기준으로 선택하는 함수로 변경하기
     int count = INT_MAX;
-    Vertex minCandidateSizeVertex = -1; // TODO 여기서 segmentation fault 발생
+    Vertex minCandidateSizeVertex = -1; // FIXED : segmentation fault handled
     int size;
     for (Vertex u : extendable){
         size = cs.GetCandidateSize(u);
@@ -25,7 +25,7 @@ Vertex Backtrack::findExtendable(const Graph &query, const CandidateSet &cs) {
 
     // erase selected node
     // TODO extendable revision
-    extendable.erase(std::remove(extendable.begin(), extendable.end(), minCandidateSizeVertex), extendable.end());
+    extendable.erase(minCandidateSizeVertex);
     return minCandidateSizeVertex;
 
 }
@@ -58,6 +58,7 @@ std::vector<Vertex> Backtrack::modifyExtendable(const Graph &graph, std::vector<
     for (Vertex extend : extendableQueryNodes){
         std::vector<Vertex> parentList = getParentList(graph, extend);
         for (Vertex parent : parentList){
+            // if parent does not exist in partial embedding
             if (partialEmbedding.find(parent) == partialEmbedding.end()){
                 // remove current extendable vertex(which do not have all its parent vertex in partial embedding) from the extendable list
                 extendableQueryNodes.erase(std::remove(extendableQueryNodes.begin(), extendableQueryNodes.end(), extend), extendableQueryNodes.end());
@@ -92,8 +93,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
         // TODO extendable revision
         std::vector<Vertex> extendableQueryNodes = getChildList(query, 0);
-        extendable.insert(extendable.end(), extendableQueryNodes.begin(), extendableQueryNodes.end());
-
+        extendable.insert(extendableQueryNodes.begin(), extendableQueryNodes.end());
 
 
         for (int i = 0; i < rootCandidateSize; ++i) {
@@ -123,8 +123,9 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         // select and remove from extendable node
         // TODO 단순히 candidate 전체를 보는 게 아니라 extendable 한 candidate를 보도록하는 로직 추가해야함
         Vertex u = findExtendable(query, cs);
-        // no extendable vertex
-        if (u == -1) return;
+
+        if (u == -1) return; // no extendable vertex
+
 
         int candidateSize = cs.GetCandidateSize(u);
         bool dataGraphParentNotConnected = false;
@@ -137,7 +138,8 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
                 for (Vertex parentQuery : parentQueryVertices){
                     // TODO fix memory access issue
                     // partialEmbeddingM might not have element at parentQuery
-                    if (/*partialEmbeddingM.find(parentQuery) == partialEmbeddingM.end() || */data.IsNeighbor(partialEmbeddingM[parentQuery], v) == false){
+                    /*partialEmbeddingM.find(parentQuery) == partialEmbeddingM.end() || */
+                    if (data.IsNeighbor(partialEmbeddingM[parentQuery], v) == false){
                         dataGraphParentNotConnected = true;
                         break;
                     }
@@ -156,7 +158,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
                 // TODO extendable revision
                 std::vector<Vertex> extendableQueryNodes = getChildList(query, u);
                 extendableQueryNodes = modifyExtendable(query, extendableQueryNodes, newPartialEmbedding);
-                extendable.insert(extendable.end(), extendableQueryNodes.begin(), extendableQueryNodes.end());
+                extendable.insert(extendableQueryNodes.begin(), extendableQueryNodes.end());
 
                 Backtrack::backTrack(data, query, cs, newPartialEmbedding);
                 visitedSet.erase(visitedSet.find(v));
