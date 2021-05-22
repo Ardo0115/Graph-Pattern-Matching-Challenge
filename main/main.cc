@@ -21,8 +21,8 @@ int main(/*int argc, char* argv[]*/) {
 // lcc_human, lcc_hprd, lcc_yeast
 // test_data.igraph, test_query.igraph, test_cs.cs
     std::string data_file_name = "C:\\Users\\jkj72\\Desktop\\graphChallenge\\Graph-Pattern-Matching-Challenge\\data\\lcc_yeast.igraph";
-    std::string query_file_name = "C:\\Users\\jkj72\\Desktop\\graphChallenge\\Graph-Pattern-Matching-Challenge\\query\\lcc_yeast_s3.igraph";
-    std::string candidate_set_file_name = "C:\\Users\\jkj72\\Desktop\\graphChallenge\\Graph-Pattern-Matching-Challenge\\candidate_set\\lcc_yeast_s3.cs";
+    std::string query_file_name = "C:\\Users\\jkj72\\Desktop\\graphChallenge\\Graph-Pattern-Matching-Challenge\\query\\lcc_yeast_n3.igraph";
+    std::string candidate_set_file_name = "C:\\Users\\jkj72\\Desktop\\graphChallenge\\Graph-Pattern-Matching-Challenge\\candidate_set\\lcc_yeast_n3.cs";
 
   Graph data(data_file_name);
   Graph query(query_file_name, true);
