@@ -51,7 +51,7 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findMinCandidate(const Graph &d
     std::map<Vertex, std::vector<Vertex>> result;
 
     size_t minCmuSize = UINT_MAX;
-    bool isCurrentDataVertexConnectedToParent = false;
+    bool isCurrentDataVertexConnectedToParent;
 
     for (Vertex currentExtendableVertex : currentExtendable){
         size_t currentCmuSize = 0;
@@ -73,7 +73,7 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findMinCandidate(const Graph &d
                 }
             }
         }
-        if (isCurrentDataVertexConnectedToParent && !(currentCmuSize >= minCmuSize)){
+        if (currentCmuSize < minCmuSize){
             // need deep copy?
             result.clear();
             result[currentExtendableVertex] = result_buf[currentExtendableVertex];
