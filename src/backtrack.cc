@@ -150,7 +150,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
         // Candidate size ordering for decision_switch = 1
         // Path size ordering for decision_switch = 2
-        int decision_switch = 2;
+        int decision_switch = 1;
 
         if (decision_switch == 1){
             // find candidate with min |C_M(u)|
