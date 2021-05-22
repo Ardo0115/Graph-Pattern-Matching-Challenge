@@ -9,7 +9,7 @@ Backtrack::Backtrack() {}
 Backtrack::~Backtrack() {}
 
 
-std::map<Vertex, std::vector<Vertex>> Backtrack::findCandidate(const Graph &data, const Graph &query , const CandidateSet &cs, MapAndSet partialEmbedding) {
+std::map<Vertex, std::vector<Vertex>> Backtrack::findCandidate(const Graph &data, const Graph &query , const CandidateSet &cs, MapAndSet &partialEmbedding) {
     // TODO!!!!
     // partialEmbedding을 바탕으로 Candidate(query Vertex와 data Vertex 리스트의 페어) 리턴하기
     std::map<Vertex, Vertex> currentEmbedding =  partialEmbedding.PartialEmbedding;
@@ -89,7 +89,7 @@ std::vector<Vertex> Backtrack::modifyExtendable(const Graph &graph, std::vector<
     return extendableQueryNodes;
 }
 
-void Backtrack::backTrack(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet partialEmbeddingM) {
+void Backtrack::backTrack(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet &partialEmbeddingM) {
     // query graph is already in DAG format
 
     if (partialEmbeddingM.PartialEmbedding.size() == query.GetNumVertices()){
@@ -122,7 +122,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             partialEmbeddingM.PartialEmbedding[0] = v;
             visitedSet.insert(v);
             Backtrack::backTrack(data, query, cs, partialEmbeddingM);
-            visitedSet.erase(visitedSet.find(v));
+            visitedSet.erase(v);
         }
         return;
 
@@ -150,7 +150,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
         // Candidate size ordering for decision_switch = 1
         // Path size ordering for decision_switch = 2
-        int decision_switch = 1;
+        int decision_switch = 2;
 
         if (decision_switch == 1){
             // find candidate with min |C_M(u)|
@@ -193,7 +193,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
                 visitedSet.insert(v);
                 Backtrack::backTrack(data, query, cs, newPartialEmbedding);
-                visitedSet.erase(visitedSet.find(v));
+                visitedSet.erase(v);
                 }
             }
         }

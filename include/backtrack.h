@@ -9,7 +9,8 @@
 #include "candidate_set.h"
 #include "common.h"
 #include "graph.h"
-#include "map"
+#include <map>
+#include <unordered_set>
 #include "MapAndSet.h"
 
 
@@ -18,9 +19,9 @@ class Backtrack {
   Backtrack();
   ~Backtrack();
   void PrintAllMatches(const Graph &data, const Graph &query, const CandidateSet &cs);
-  void backTrack(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet partialEmbeddingM);
+  void backTrack(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet &partialEmbeddingM);
 
-  std::map<Vertex, std::vector<Vertex>> findCandidate(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet partialEmbedding);
+  std::map<Vertex, std::vector<Vertex>> findCandidate(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet &partialEmbedding);
 
   std::vector<Vertex> getChildList(const Graph &graph, Vertex index);
   std::vector<Vertex> getParentList(const Graph &graph, Vertex index);
@@ -31,7 +32,7 @@ class Backtrack {
 
 
   std::map<Vertex, std::map<Vertex, unsigned int>> weight;
-  std::set<Vertex> visitedSet;
+  std::unordered_set<Vertex> visitedSet;
   std::map<Vertex, std::vector<Vertex>> extendableMap;
 
 };
