@@ -1,1 +1,1 @@
-add_executable(program main.cc ${SOURCES} ../include/MapAndSet.h)
+add_executable(program main.cc ${SOURCES})
