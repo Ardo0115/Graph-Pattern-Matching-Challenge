@@ -145,7 +145,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         std::map<Vertex, std::vector<Vertex>> candidate = findCandidate(data, query, cs, partialEmbeddingM);
         if (candidate.size() == 0) return; // no extendable vertex
 
-        int minWeight = INT_MAX;
+        size_t minWeight = UINT_MAX;
         std::pair<Vertex, std::vector<Vertex>> selectedCandidate;
 
         // Candidate size ordering for decision_switch = 1
@@ -164,7 +164,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         } else if (decision_switch == 2 ){
             // find candidate with min w_M(u)
             for (auto tempCandidate : candidate){
-                int current_weight = 0;
+                size_t current_weight = 0;
                 for (Vertex extendableDataVertex : tempCandidate.second){
                     current_weight += weight[tempCandidate.first][extendableDataVertex];
                 }
@@ -217,7 +217,7 @@ std::map<Vertex, std::map<Vertex, unsigned int>> Backtrack::buildWeightCS(const 
 
     // initialize weight
     std::map<Vertex, std::map<Vertex, unsigned int>> weight;
-    for (int i = 0; i < query.GetNumVertices(); ++i) {
+    for (size_t i = 0; i < query.GetNumVertices(); ++i) {
         std::vector<Vertex> allCandidate = getAllCandidate(cs, i);
         for (Vertex candidate : allCandidate){
             weight[i][candidate] = 0;
@@ -226,7 +226,7 @@ std::map<Vertex, std::map<Vertex, unsigned int>> Backtrack::buildWeightCS(const 
 
     // mark unchecked query vertices
     std::set<Vertex> uncheckedQueryVertices;
-    for (int i = 0; i < query.GetNumVertices(); ++i) {
+    for (size_t i = 0; i < query.GetNumVertices(); ++i) {
         uncheckedQueryVertices.insert(i);
     }
 
@@ -248,7 +248,7 @@ std::map<Vertex, std::map<Vertex, unsigned int>> Backtrack::buildWeightCS(const 
         } else {
             // finally assign 1
             uncheckedQueryVertices.erase(i);
-            for (int j = 0; j < cs.GetCandidateSize(i); ++j) {
+            for (size_t j = 0; j < cs.GetCandidateSize(i); ++j) {
                 weight[i][cs.GetCandidate(i,j)] = 1;
             }
         }
