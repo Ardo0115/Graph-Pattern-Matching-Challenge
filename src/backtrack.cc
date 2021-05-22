@@ -68,14 +68,18 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findMinCandidate(const Graph &d
             }
             if (isCurrentDataVertexConnectedToParent){
                 result_buf[currentExtendableVertex].insert(result_buf[currentExtendableVertex].end(), v);
-                if(++currentCmuSize > minCmuSize){
+                if(++currentCmuSize >= minCmuSize){
                     break;
                 }
             }
         }
-        if (currentCmuSize < minCmuSize){
+        if (currentCmuSize > 0 && currentCmuSize < minCmuSize){
             // need deep copy?
             result.clear();
+            // for(size_t k = 0; k < result_buf[currentExtendableVertex].size(); ++k){
+            //     result[currentExtendableVertex].push_back(result_buf[currentExtendableVertex][k]);
+            // }
+            // std::cout << "result size : " << result[currentExtendableVertex].size() << std::endl;
             result[currentExtendableVertex] = result_buf[currentExtendableVertex];
             minCmuSize = currentCmuSize;
         }
@@ -213,6 +217,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             // std::cout << candidate.size() << std::endl;
             // assert(candidate.size() == 1);
             selectedCandidate = *candidate.begin();
+            // std::cout << selectedCandidate.second.size() << std::endl;
 
 
         } else if (decision_switch == 2 ){

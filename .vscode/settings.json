@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "bitset": "cpp",
-        "core": "cpp"
+        "core": "cpp",
+        "*.tcc": "cpp"
     }
 }
