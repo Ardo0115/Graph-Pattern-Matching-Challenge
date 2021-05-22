@@ -4,6 +4,7 @@
  */
 
 #include "backtrack.h"
+#include <cassert>
 
 Backtrack::Backtrack() {}
 Backtrack::~Backtrack() {}
@@ -40,6 +41,52 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findCandidate(const Graph &data
     return result;
 
 }
+
+std::map<Vertex, std::vector<Vertex>> Backtrack::findMinCandidate(const Graph &data, const Graph &query , const CandidateSet &cs, MapAndSet &partialEmbedding) {
+    // TODO!!!!
+    // partialEmbedding을 바탕으로 Candidate(query Vertex와 data Vertex 리스트의 페어) 리턴하기
+    std::map<Vertex, Vertex> currentEmbedding =  partialEmbedding.PartialEmbedding;
+    std::set<Vertex> currentExtendable = partialEmbedding.extendable;
+    std::map<Vertex, std::vector<Vertex>> result_buf;
+    std::map<Vertex, std::vector<Vertex>> result;
+
+    size_t minCmuSize = UINT_MAX;
+    bool isCurrentDataVertexConnectedToParent = false;
+
+    for (Vertex currentExtendableVertex : currentExtendable){
+        size_t currentCmuSize = 0;
+        std::vector<Vertex> allCandidate = getAllCandidate(cs, currentExtendableVertex);
+        for (Vertex v : allCandidate){
+            isCurrentDataVertexConnectedToParent = true;
+            std::vector<Vertex> parentQueryVertices = getParentList(query, currentExtendableVertex);
+
+            for (Vertex parentQueryVertex : parentQueryVertices){
+                if (data.IsNeighbor(partialEmbedding.PartialEmbedding[parentQueryVertex], v) == false){
+                    isCurrentDataVertexConnectedToParent = false;
+                    break;
+                }
+            }
+            if (isCurrentDataVertexConnectedToParent){
+                result_buf[currentExtendableVertex].insert(result_buf[currentExtendableVertex].end(), v);
+                if(++currentCmuSize > minCmuSize){
+                    break;
+                }
+            }
+        }
+        if (isCurrentDataVertexConnectedToParent && !(currentCmuSize >= minCmuSize)){
+            // need deep copy?
+            result.clear();
+            result[currentExtendableVertex] = result_buf[currentExtendableVertex];
+            minCmuSize = currentCmuSize;
+        }
+        
+    }
+
+    // we do not erase anything here
+    return result;
+
+}
+
 
 std::vector<Vertex> Backtrack::getChildList(const Graph &graph, Vertex index) {
     int firstNeighborOffset = graph.GetNeighborStartOffset(index);
@@ -141,28 +188,38 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
 
         // select and remove from extendable node
-        // TODO 단순히 candidate 전체를 보는 게 아니라 extendable 한 candidate를 보도록하는 로직 추가해야함
-        std::map<Vertex, std::vector<Vertex>> candidate = findCandidate(data, query, cs, partialEmbeddingM);
-        if (candidate.size() == 0) return; // no extendable vertex
+
 
         size_t minWeight = UINT_MAX;
+        std::map<Vertex, std::vector<Vertex>> candidate;
         std::pair<Vertex, std::vector<Vertex>> selectedCandidate;
 
         // Candidate size ordering for decision_switch = 1
         // Path size ordering for decision_switch = 2
-        int decision_switch = 2;
+        int decision_switch = 1;
 
         if (decision_switch == 1){
             // find candidate with min |C_M(u)|
-            for (auto tempCandidate : candidate){
-                if (tempCandidate.second.size() < minWeight){
-                    minWeight = tempCandidate.second.size();
-                    selectedCandidate = tempCandidate;
+            // for (auto tempCandidate : candidate){
+            //     if (tempCandidate.second.size() < minWeight){
+            //         minWeight = tempCandidate.second.size();
+            //         selectedCandidate = tempCandidate;
 
-                }
-            }
+            //     }
+            // }
+            candidate = findMinCandidate(data, query, cs, partialEmbeddingM);
+            if (candidate.size() == 0) return;
+            // size of candidate == 1
+            // std::cout << candidate.size() << std::endl;
+            // assert(candidate.size() == 1);
+            selectedCandidate = *candidate.begin();
+
+
         } else if (decision_switch == 2 ){
             // find candidate with min w_M(u)
+            // TODO 단순히 candidate 전체를 보는 게 아니라 extendable 한 candidate를 보도록하는 로직 추가해야함
+            candidate = findCandidate(data, query, cs, partialEmbeddingM);
+            if (candidate.size() == 0) return; // no extendable vertex
             for (auto tempCandidate : candidate){
                 size_t current_weight = 0;
                 for (Vertex extendableDataVertex : tempCandidate.second){
