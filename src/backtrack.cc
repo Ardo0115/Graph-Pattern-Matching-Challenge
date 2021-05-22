@@ -75,7 +75,13 @@ std::vector<Vertex> Backtrack::getAllCandidate(const CandidateSet &cs, Vertex qu
 }
 
 std::vector<Vertex> Backtrack::modifyExtendable(const Graph &graph, std::vector<Vertex> extendableQueryNodes, std::map<Vertex, Vertex> partialEmbedding) {
+    // u is newly added query Vertex
     for (Vertex extend : extendableQueryNodes){
+        if (partialEmbedding.find(extend) != partialEmbedding.end()){
+            extendableQueryNodes.erase(std::remove(extendableQueryNodes.begin(), extendableQueryNodes.end(), extend), extendableQueryNodes.end());
+            continue;
+        }
+
         std::vector<Vertex> parentList = getParentList(graph, extend);
         for (Vertex parent : parentList){
             // if parent does not exist in partial embedding
@@ -189,6 +195,9 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             if (visitedSet.count(v) == 0) {
                 // line for debugging
                 std::cout << "u : " << u << ", v : " << v << std::endl;
+//                if (u == 33 && v == 123){
+//                    std::cout << std::endl;
+//                }
 
                 MapAndSet newPartialEmbedding(partialEmbeddingM);
                 newPartialEmbedding.PartialEmbedding[u] = v;
@@ -217,7 +226,7 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query, const Can
     // implement your code here.
     MapAndSet emptyPartialEmbedding;
     weight = buildWeightCS(data, query, cs);
-    backTrack(data, query, cs, emptyPartialEmbedding);
+    Backtrack::backTrack(data, query, cs, emptyPartialEmbedding);
 }
 
 
