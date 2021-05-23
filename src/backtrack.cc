@@ -68,11 +68,14 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findMinCandidate(const Graph &d
             }
             if (isCurrentDataVertexConnectedToParent){
                 result_buf[currentExtendableVertex].insert(result_buf[currentExtendableVertex].end(), v);
-                if(++currentCmuSize >= minCmuSize){
+                ++currentCmuSize;
+            }
+
+            if(currentCmuSize >= minCmuSize){
                     break;
-                }
             }
         }
+        assert(currentCmuSize == result_buf[currentExtendableVertex].size());
         if (currentCmuSize > 0 && currentCmuSize < minCmuSize){
             // need deep copy?
             result.clear();
@@ -202,27 +205,37 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         size_t minWeight = UINT_MAX;
         std::map<Vertex, std::vector<Vertex>> candidate;
         std::pair<Vertex, std::vector<Vertex>> selectedCandidate;
-
+        /*DEBUG*/
+        std::pair<Vertex, std::vector<Vertex>> selectedCandidateOrigin;
         // Candidate size ordering for decision_switch = 1
         // Path size ordering for decision_switch = 2
         int decision_switch = 1;
 
         if (decision_switch == 1){
             // find candidate with min |C_M(u)|
-            // for (auto tempCandidate : candidate){
-            //     if (tempCandidate.second.size() < minWeight){
-            //         minWeight = tempCandidate.second.size();
-            //         selectedCandidate = tempCandidate;
+            /*DEBUG*/
+            candidate = findCandidate(data, query, cs, partialEmbeddingM);
+            if (candidate.size() == 0) return;
+            for (auto tempCandidate : candidate){
+                if (tempCandidate.second.size() < minWeight){
+                    minWeight = tempCandidate.second.size();
+                    selectedCandidateOrigin = tempCandidate;
 
-            //     }
-            // }
+                }
+            }
             candidate = findMinCandidate(data, query, cs, partialEmbeddingM);
             if (candidate.size() == 0) return;
             // size of candidate == 1
             // std::cout << candidate.size() << std::endl;
             // assert(candidate.size() == 1);
             selectedCandidate = *candidate.begin();
-
+            /*DEBUG*/
+            size_t sizeOrigin = selectedCandidateOrigin.second.size();
+            size_t sizeMine = selectedCandidate.second.size();
+            Vertex originVertex = selectedCandidateOrigin.first;
+            Vertex mineVertex = selectedCandidate.first;
+            assert(originVertex == mineVertex);
+            assert(sizeOrigin == sizeMine);
 
         } else if (decision_switch == 2 ){
             // find candidate with min w_M(u)
@@ -245,7 +258,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
         Vertex u = selectedCandidate.first;
         std::vector<Vertex> v_list = selectedCandidate.second;
-        std::cout << v_list.size() << std::endl;
+        if (v_list.size() == 3) std::cout << v_list.size() << std::endl;
 
         std::vector<std::pair<Vertex, unsigned int>> verticesAndWeight;
         for (Vertex v : v_list){
