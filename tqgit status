@@ -1,0 +1,66 @@
+[1mdiff --git a/build/main/CMakeFiles/program.dir/CXX.includecache b/build/main/CMakeFiles/program.dir/CXX.includecache[m
+[1mindex bbbca79..edb2cfe 100644[m
+[1m--- a/build/main/CMakeFiles/program.dir/CXX.includecache[m
+[1m+++ b/build/main/CMakeFiles/program.dir/CXX.includecache[m
+[36m@@ -65,7 +65,9 @@[m [mcommon.h[m
+ /home/dohoon/algoritm_hw/Graph-Pattern-Matching-Challenge/main/common.h[m
+ graph.h[m
+ /home/dohoon/algoritm_hw/Graph-Pattern-Matching-Challenge/main/graph.h[m
+[31m-time.h[m
+[32m+[m[32mctime[m
+[32m+[m[32m-[m
+[32m+[m[32mfstream[m
+ -[m
+ [m
+ /home/dohoon/algoritm_hw/Graph-Pattern-Matching-Challenge/src/backtrack.cc[m
+[1mdiff --git a/build/main/CMakeFiles/program.dir/__/src/backtrack.cc.o b/build/main/CMakeFiles/program.dir/__/src/backtrack.cc.o[m
+[1mindex 606d81d..76dc201 100644[m
+Binary files a/build/main/CMakeFiles/program.dir/__/src/backtrack.cc.o and b/build/main/CMakeFiles/program.dir/__/src/backtrack.cc.o differ
+[1mdiff --git a/build/main/CMakeFiles/program.dir/main.cc.o b/build/main/CMakeFiles/program.dir/main.cc.o[m
+[1mindex 5ab6e39..5918221 100644[m
+Binary files a/build/main/CMakeFiles/program.dir/main.cc.o and b/build/main/CMakeFiles/program.dir/main.cc.o differ
+[1mdiff --git a/build/main/program b/build/main/program[m
+[1mindex 702f509..eb196f4 100755[m
+Binary files a/build/main/program and b/build/main/program differ
+[1mdiff --git a/src/backtrack.cc b/src/backtrack.cc[m
+[1mindex fe7344c..c24d333 100644[m
+[1m--- a/src/backtrack.cc[m
+[1m+++ b/src/backtrack.cc[m
+[36m@@ -79,7 +79,7 @@[m [mstd::map<Vertex, std::vector<Vertex>> Backtrack::findMinCandidate(const Graph &d[m
+             // for(size_t k = 0; k < result_buf[currentExtendableVertex].size(); ++k){[m
+             //     result[currentExtendableVertex].push_back(result_buf[currentExtendableVertex][k]);[m
+             // }[m
+[31m-            // std::cout << "result size : " << result[currentExtendableVertex].size() << std::endl;[m
+[32m+[m[32m            // std::cout << "result size : " << result_buf[currentExtendableVertex].size() << std::endl;[m
+             result[currentExtendableVertex] = result_buf[currentExtendableVertex];[m
+             minCmuSize = currentCmuSize;[m
+         }[m
+[36m@@ -222,7 +222,6 @@[m [mvoid Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate[m
+             // std::cout << candidate.size() << std::endl;[m
+             // assert(candidate.size() == 1);[m
+             selectedCandidate = *candidate.begin();[m
+[31m-            // std::cout << selectedCandidate.second.size() << std::endl;[m
+ [m
+ [m
+         } else if (decision_switch == 2 ){[m
+[36m@@ -246,6 +245,8 @@[m [mvoid Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate[m
+ [m
+         Vertex u = selectedCandidate.first;[m
+         std::vector<Vertex> v_list = selectedCandidate.second;[m
+[32m+[m[32m        std::cout << v_list.size() << std::endl;[m
+[32m+[m
+         std::vector<std::pair<Vertex, unsigned int>> verticesAndWeight;[m
+         for (Vertex v : v_list){[m
+             verticesAndWeight.push_back(std::make_pair(v, weight[u][v]));[m
+[1mdiff --git a/test_hprd_n1.sh b/test_hprd_n1.sh[m
+[1mindex 6fd6449..99e47a1 100755[m
+[1m--- a/test_hprd_n1.sh[m
+[1m+++ b/test_hprd_n1.sh[m
+[36m@@ -4,6 +4,6 @@[m [mi=1[m
+ [m
+ while [ $i -le 100 ][m
+ do[m
+[31m-    ./build/main/program data/lcc_hprd.igraph query/lcc_hprd_n1.igraph candidate_set/lcc_hprd_n1.cs ../jkj_decision2.txt[m
+[32m+[m[32m    ./build/main/program data/lcc_hprd.igraph query/lcc_hprd_n1.igraph candidate_set/lcc_hprd_n1.cs ../jkj_optimization_before_endl_decision1.txt[m
+     ((i++))[m
+ done[m

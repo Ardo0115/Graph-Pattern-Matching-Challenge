@@ -223,7 +223,10 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
                 }
             }
+            /*DEBUG*/
+            std::cout << "origin : " << candidate.size() <<std::endl; 
             candidate = findMinCandidate(data, query, cs, partialEmbeddingM);
+            std::cout << "mine : " << candidate.size() << std::endl;
             if (candidate.size() == 0) return;
             // size of candidate == 1
             // std::cout << candidate.size() << std::endl;
@@ -234,6 +237,8 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             size_t sizeMine = selectedCandidate.second.size();
             Vertex originVertex = selectedCandidateOrigin.first;
             Vertex mineVertex = selectedCandidate.first;
+            std::cout << "vertex : " << originVertex << std::endl;
+            std::cout << "size : " << sizeOrigin << std::endl;
             assert(originVertex == mineVertex);
             assert(sizeOrigin == sizeMine);
 
