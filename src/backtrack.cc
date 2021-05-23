@@ -10,7 +10,7 @@ Backtrack::Backtrack() {}
 Backtrack::~Backtrack() {}
 
 
-std::map<Vertex, std::vector<Vertex>> Backtrack::findCandidate(const Graph &data, const Graph &query , const CandidateSet &cs, MapAndSet &partialEmbedding) {
+std::map<Vertex, std::vector<Vertex>> Backtrack::findCandidate(const Graph &data, const Graph &query , const CandidateSet &cs, MapAndSet partialEmbedding) {
     // TODO!!!!
     // partialEmbedding을 바탕으로 Candidate(query Vertex와 data Vertex 리스트의 페어) 리턴하기
     std::map<Vertex, Vertex> currentEmbedding =  partialEmbedding.PartialEmbedding;
@@ -42,7 +42,7 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findCandidate(const Graph &data
 
 }
 
-std::map<Vertex, std::vector<Vertex>> Backtrack::findMinCandidate(const Graph &data, const Graph &query , const CandidateSet &cs, MapAndSet &partialEmbedding) {
+std::map<Vertex, std::vector<Vertex>> Backtrack::findMinCandidate(const Graph &data, const Graph &query , const CandidateSet &cs, MapAndSet partialEmbedding) {
     // TODO!!!!
     // partialEmbedding을 바탕으로 Candidate(query Vertex와 data Vertex 리스트의 페어) 리턴하기
     std::map<Vertex, Vertex> currentEmbedding =  partialEmbedding.PartialEmbedding;
@@ -75,14 +75,9 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findMinCandidate(const Graph &d
                     break;
             }
         }
-        assert(currentCmuSize == result_buf[currentExtendableVertex].size());
         if (currentCmuSize > 0 && currentCmuSize < minCmuSize){
             // need deep copy?
             result.clear();
-            // for(size_t k = 0; k < result_buf[currentExtendableVertex].size(); ++k){
-            //     result[currentExtendableVertex].push_back(result_buf[currentExtendableVertex][k]);
-            // }
-            // std::cout << "result size : " << result_buf[currentExtendableVertex].size() << std::endl;
             result[currentExtendableVertex] = result_buf[currentExtendableVertex];
             minCmuSize = currentCmuSize;
         }
@@ -205,8 +200,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         size_t minWeight = UINT_MAX;
         std::map<Vertex, std::vector<Vertex>> candidate;
         std::pair<Vertex, std::vector<Vertex>> selectedCandidate;
-        /*DEBUG*/
-        std::pair<Vertex, std::vector<Vertex>> selectedCandidateOrigin;
+
         // Candidate size ordering for decision_switch = 1
         // Path size ordering for decision_switch = 2
         int decision_switch = 1;
@@ -214,6 +208,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         if (decision_switch == 1){
             // find candidate with min |C_M(u)|
             /*DEBUG*/
+            /*
             candidate = findCandidate(data, query, cs, partialEmbeddingM);
             if (candidate.size() == 0) return;
             for (auto tempCandidate : candidate){
@@ -223,16 +218,13 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
                 }
             }
-            /*DEBUG*/
-            std::cout << "origin : " << candidate.size() <<std::endl; 
+            */
+           
             candidate = findMinCandidate(data, query, cs, partialEmbeddingM);
-            std::cout << "mine : " << candidate.size() << std::endl;
             if (candidate.size() == 0) return;
-            // size of candidate == 1
-            // std::cout << candidate.size() << std::endl;
-            // assert(candidate.size() == 1);
             selectedCandidate = *candidate.begin();
             /*DEBUG*/
+            /*
             size_t sizeOrigin = selectedCandidateOrigin.second.size();
             size_t sizeMine = selectedCandidate.second.size();
             Vertex originVertex = selectedCandidateOrigin.first;
@@ -241,6 +233,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             std::cout << "size : " << sizeOrigin << std::endl;
             assert(originVertex == mineVertex);
             assert(sizeOrigin == sizeMine);
+            */
 
         } else if (decision_switch == 2 ){
             // find candidate with min w_M(u)
@@ -263,7 +256,6 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
         Vertex u = selectedCandidate.first;
         std::vector<Vertex> v_list = selectedCandidate.second;
-        if (v_list.size() == 3) std::cout << v_list.size() << std::endl;
 
         std::vector<std::pair<Vertex, unsigned int>> verticesAndWeight;
         for (Vertex v : v_list){
@@ -274,12 +266,6 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         for (/*Vertex v : v_list*/ std::pair<Vertex, unsigned int> vertexAndWeight : verticesAndWeight) {
             Vertex v = vertexAndWeight.first;
             if (visitedSet.count(v) == 0) {
-                // line for debugging
-                // std::cout << "u : " << u << ", v : " << v << std::endl;
-                // if (u == 33 && v == 123){
-                //     std::cout << std::endl;
-                // }
-
                 MapAndSet newPartialEmbedding(partialEmbeddingM);
                 newPartialEmbedding.PartialEmbedding[u] = v;
 
