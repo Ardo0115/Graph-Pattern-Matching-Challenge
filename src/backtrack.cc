@@ -153,7 +153,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         for (std::pair<Vertex, Vertex> pair : partialEmbeddingM.PartialEmbedding){
             std::cout << pair.second << " ";
         }
-        std::cout << std::endl;
+        std::cout << "\n";
     } else if (partialEmbeddingM.PartialEmbedding.empty()){
 
         /*
