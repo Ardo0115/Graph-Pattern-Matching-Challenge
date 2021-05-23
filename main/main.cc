@@ -8,6 +8,7 @@
 #include "common.h"
 #include "graph.h"
 #include <ctime>
+#include <fstream>
 
 int main(int argc, char* argv[]) {
  if (argc < 4) {
@@ -37,7 +38,15 @@ int main(int argc, char* argv[]) {
   backtrack.PrintAllMatches(data, query, candidate_set);
   end = clock();
   result = (double)(end -start);
-  printf("Execution Time : %fms\n", result);
+
+  std::string filePath = argv[4];
+  std::ofstream writeFile;
+  writeFile.open(filePath, std::ios_base::app);
+  if (writeFile.is_open()){
+    writeFile << "Execution Time : " << result << "\n";
+    writeFile.close();
+  }
+  // printf("Execution Time : %fms\n", result);
 
 
   return EXIT_SUCCESS;

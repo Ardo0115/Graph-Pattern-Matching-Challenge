@@ -194,10 +194,10 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             Vertex v = vertexAndWeight.first;
             if (visitedSet.count(v) == 0) {
                 // line for debugging
-                std::cout << "u : " << u << ", v : " << v << std::endl;
-                if (u == 33 && v == 123){
-                    std::cout << std::endl;
-                }
+                // std::cout << "u : " << u << ", v : " << v << std::endl;
+                // if (u == 33 && v == 123){
+                //     std::cout << std::endl;
+                // }
 
                 MapAndSet newPartialEmbedding(partialEmbeddingM);
                 newPartialEmbedding.PartialEmbedding[u] = v;
