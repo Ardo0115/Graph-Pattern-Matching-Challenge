@@ -7,6 +7,7 @@
 #include "candidate_set.h"
 #include "common.h"
 #include "graph.h"
+#include <ctime>
 
 int main(int argc, char* argv[]) {
  if (argc < 4) {
@@ -14,7 +15,7 @@ int main(int argc, char* argv[]) {
                 "<candidate set file>\n";
    return EXIT_FAILURE;
  }
-
+ 
  std::string data_file_name = argv[1];
  std::string query_file_name = argv[2];
  std::string candidate_set_file_name = argv[3];
@@ -30,7 +31,14 @@ int main(int argc, char* argv[]) {
 
   Backtrack backtrack;
 
+  clock_t start, end;
+  double result;
+  start = clock();
   backtrack.PrintAllMatches(data, query, candidate_set);
+  end = clock();
+  result = (double)(end -start);
+  printf("Execution Time : %fms\n", result);
+
 
   return EXIT_SUCCESS;
 }

@@ -4,6 +4,7 @@ project(subgraph_matching)
 add_compile_options(-O0)
 add_compile_options(-Wall)
 add_compile_options(-std=c++11)
+add_compile_options(-g)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
