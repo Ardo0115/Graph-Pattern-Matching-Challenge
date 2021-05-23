@@ -79,7 +79,7 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findMinCandidate(const Graph &d
             // for(size_t k = 0; k < result_buf[currentExtendableVertex].size(); ++k){
             //     result[currentExtendableVertex].push_back(result_buf[currentExtendableVertex][k]);
             // }
-            // std::cout << "result size : " << result[currentExtendableVertex].size() << std::endl;
+            // std::cout << "result size : " << result_buf[currentExtendableVertex].size() << std::endl;
             result[currentExtendableVertex] = result_buf[currentExtendableVertex];
             minCmuSize = currentCmuSize;
         }
@@ -222,7 +222,6 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             // std::cout << candidate.size() << std::endl;
             // assert(candidate.size() == 1);
             selectedCandidate = *candidate.begin();
-            // std::cout << selectedCandidate.second.size() << std::endl;
 
 
         } else if (decision_switch == 2 ){
@@ -246,6 +245,8 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
         Vertex u = selectedCandidate.first;
         std::vector<Vertex> v_list = selectedCandidate.second;
+        std::cout << v_list.size() << std::endl;
+
         std::vector<std::pair<Vertex, unsigned int>> verticesAndWeight;
         for (Vertex v : v_list){
             verticesAndWeight.push_back(std::make_pair(v, weight[u][v]));
