@@ -11,8 +11,6 @@
 #include "graph.h"
 #include "map"
 #include "MapAndSet.h"
-#include <unordered_set>
-#include <queue>
 
 
 class Backtrack {
@@ -22,13 +20,12 @@ class Backtrack {
   void PrintAllMatches(const Graph &data, const Graph &query, const CandidateSet &cs);
   void backTrack(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet partialEmbeddingM);
 
-  std::map<Vertex, std::vector<Vertex>> findCandidate(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet partialEmbedding);
+  std::map<Vertex, std::vector<Vertex>> findCandidate(const Graph &data, const Graph &query, const CandidateSet &cs, const MapAndSet& partialEmbedding);
 
-  std::vector<Vertex> getTopologicVector(const Graph &query, const CandidateSet &cs);
   std::vector<Vertex> getChildList(const Graph &graph, Vertex index);
   std::vector<Vertex> getParentList(const Graph &graph, Vertex index);
   std::vector<Vertex> getAllCandidate(const CandidateSet &cs, Vertex queryVertex);
-  std::vector<Vertex> modifyExtendable(const Graph &graph ,std::vector<Vertex> extendableQueryNodes, std::map<Vertex, Vertex> partialEmbedding);
+  void modifyExtendable(const Graph &graph ,std::vector<Vertex>& extendableQueryNodes, const std::map<Vertex, Vertex>& newPartialEmbedding);
 
   std::map<Vertex, std::map<Vertex, unsigned int>> buildWeightCS(const Graph &data, const Graph &query, const CandidateSet &cs);
   static bool cmp(std::pair<Vertex, unsigned int>& w1, std::pair<Vertex, unsigned int>& w2);
