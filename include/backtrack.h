@@ -28,9 +28,9 @@ class Backtrack {
   std::map<Vertex, std::vector<Vertex>> findCandidate(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet partialEmbedding);
   std::map<Vertex, std::vector<Vertex>> findMinCandidate(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet partialEmbedding);
 
-  std::vector<Vertex> Backtrack::getConnectedVertices(const std::set<Vertex> &toFindSet, const std::set<Vertex> &fromFindSet, const Graph &graph);
-  Vertex Backtrack::getNextTopologicElem(std::vector<Vertex> &S, const Graph &query, const CandidateSet &cs);
-  std::set<Vertex> Backtrack::getAllVertices(const Graph &query){
+  std::vector<Vertex> getConnectedVertices(const std::set<Vertex> &toFindSet, const std::set<Vertex> &fromFindSet, const Graph &graph);
+  Vertex getNextTopologicElem(std::vector<Vertex> &S, const Graph &query, const CandidateSet &cs);
+  std::set<Vertex> getAllVertices(const Graph &query);
 
 
   Vertex getMinCandidateVertex(const Graph &graph, const CandidateSet &cs);
