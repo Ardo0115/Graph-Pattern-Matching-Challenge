@@ -236,24 +236,12 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query, const Can
 std::vector<Vertex> Backtrack::getTopologicVector(const Graph &query, const CandidateSet &cs){
     std::unordered_set<Vertex> visited;
     std::vector<Vertex> topologicVector;
+    std::vector<Vertex> neighbors;
     std::queue<Vertex> Q;
     Vertex v; // v is in query graph
-    Vertex adj_v;
-    size_t firstNeighborOffset;
-    size_t endNeighborOffset;
-
 
     /* Get r */
-    Vertex r;
-    size_t minCuSize = UINT_MAX;
-    size_t numVertices = query.GetNumVertices();
-    for (size_t u = 0; u < numVertices; ++u){
-        size_t currentCuSize = cs.GetCandidateSize(u);
-        if (currentCuSize < minCuSize){
-            r = u;
-            minCuSize = currentCuSize;
-        }
-    }
+    Vertex r = Backtrack::getMinCandidateVertex(query, cs);
 
     /* Traverse */
     visited.insert(r);
@@ -262,23 +250,59 @@ std::vector<Vertex> Backtrack::getTopologicVector(const Graph &query, const Cand
     while (!Q.empty()){
         v = Q.front();
         Q.pop();
+        /* Get neighbors */
+        neighbors = Backtrack::getNeighborList(query, v);
+        
+        /* Sort neighbors */
+        std::sort(neighbors.begin(), neighbors.end(), [query](Vertex u, Vertex v) {
+            Label label_u = query.GetLabel(u);
+            Label label_v = query.GetLabel(v);
+            if (query.GetLabelFrequency(label_u) != query.GetLabelFrequency(label_v))
+                return query.GetLabelFrequency(label_u) < query.GetLabelFrequency(label_v);
+            else if (query.GetDegree(u) != query.GetDegree(v))
+                return query.GetDegree(u) > query.GetDegree(v);
+            else
+                return u < v;
+        });
 
         /* Enqeue adjacent to v*/
-        firstNeighborOffset = query.GetNeighborStartOffset(v);
-        endNeighborOffset = query.GetNeighborEndOffset(v);
-        for (size_t i = firstNeighborOffset; i < endNeighborOffset; ++i) {
-            adj_v = query.GetNeighbor(i);
+        for (auto adj_v : neighbors){
             if (visited.count(adj_v) == 0){
                 visited.insert(adj_v);
                 topologicVector.push_back(adj_v);
                 Q.push(adj_v);
             }
-
         }
 
     }
     return topologicVector;
 }
+
+Vertex Backtrack::getMinCandidateVertex(const Graph &graph, const CandidateSet &cs){
+    Vertex r = -1;
+    size_t minCuSize = UINT_MAX;
+    size_t numVertices = graph.GetNumVertices();
+    for (size_t u = 0; u < numVertices; ++u){
+        size_t currentCuSize = cs.GetCandidateSize(u);
+        if (currentCuSize < minCuSize){
+            r = u;
+            minCuSize = currentCuSize;
+        }
+    }
+
+    return r;
+}
+
+std::vector<Vertex> Backtrack::getNeighborList(const Graph &graph, Vertex index){
+    std::vector<Vertex> neighbors;
+    size_t firstNeighborOffset = graph.GetNeighborStartOffset(index);
+    size_t endNeighborOffset = graph.GetNeighborEndOffset(index);
+    for (size_t i = firstNeighborOffset; i < endNeighborOffset; ++i){
+        neighbors.push_back(graph.GetNeighbor(i));
+    }
+    return neighbors;
+}
+
 
 
 std::map<Vertex, std::map<Vertex, unsigned int>> Backtrack::buildWeightCS(const Graph &data, const Graph &query, const CandidateSet &cs) {
