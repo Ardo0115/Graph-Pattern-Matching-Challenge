@@ -42,28 +42,48 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findCandidate(const Graph &data
 
 }
 
-std::vector<Vertex> Backtrack::getChildList(const Graph &graph, Vertex index) {
-    int firstNeighborOffset = graph.GetNeighborStartOffset(index);
-    int endNeighborOffset = graph.GetNeighborEndOffset(index);
+std::vector<Vertex> Backtrack::getNeighborList(const Graph &graph, Vertex index){
     std::vector<Vertex> neighbors;
-    for (int i = firstNeighborOffset; i < endNeighborOffset; ++i) {
-        if (graph.GetNeighbor(i) > index){
-            neighbors.push_back(graph.GetNeighbor(i));
-        }
+    size_t firstNeighborOffset = graph.GetNeighborStartOffset(index);
+    size_t endNeighborOffset = graph.GetNeighborEndOffset(index);
+    for (size_t i = firstNeighborOffset; i < endNeighborOffset; ++i){
+        neighbors.push_back(graph.GetNeighbor(i));
     }
-    return  neighbors;
+    return neighbors;
 }
 
-std::vector<Vertex> Backtrack::getParentList(const Graph &graph, Vertex index) {
-    int firstNeighborOffset = graph.GetNeighborStartOffset(index);
-    int endNeighborOffset = graph.GetNeighborEndOffset(index);
-    std::vector<Vertex> neighbors;
-    for (int i = firstNeighborOffset; i < endNeighborOffset; ++i) {
-        if (graph.GetNeighbor(i) < index){
-            neighbors.push_back(graph.GetNeighbor(i));
+void Backtrack::setChildrenAndParentList(const Graph &query) {
+    for (Vertex index : topologicVector){
+        std::vector<Vertex> neighbors = getNeighborList(query, index);
+        std::vector<Vertex> children;
+        std::vector<Vertex> parents;
+        auto currentIndexIterator = std::find(topologicVector.begin(), topologicVector.end(), index);
+        std::vector<Vertex> nextVertices(currentIndexIterator + 1, topologicVector.end());
+//        std::vector<Vertex> previousVertices(topologicVector.begin(), currentIndexIterator);
+
+        for (Vertex neighbor : neighbors){
+            if (std::find(nextVertices.begin(), nextVertices.end(), neighbor ) != nextVertices.end()){
+                children.push_back(neighbor);
+            } else {
+                parents.push_back(neighbor);
+            }
         }
+
+    parentAndChildrenMap[index] = std::make_pair(parents, children);
     }
-    return  neighbors;
+
+}
+
+
+std::vector<Vertex> Backtrack::getChildList(const Graph &query, Vertex index) {
+    // get child in query DAG
+    return  parentAndChildrenMap[index].second;
+
+}
+
+std::vector<Vertex> Backtrack::getParentList(const Graph &query, Vertex index) {
+    // get parents in query DAG
+    return  parentAndChildrenMap[index].first;
 }
 
 std::vector<Vertex> Backtrack::getAllCandidate(const CandidateSet &cs, Vertex queryVertex) {
@@ -99,6 +119,17 @@ void Backtrack::modifyExtendable(const Graph &graph, std::vector<Vertex>& extend
 //    return extendableQueryNodes;
 }
 
+void Backtrack::PrintAllMatches(const Graph &data, const Graph &query, const CandidateSet &cs) {
+    std::cout << "t " << query.GetNumVertices() << "\n";
+    // implement your code here.
+    MapAndSet emptyPartialEmbedding;
+    Backtrack::topologicVector = Backtrack::getTopologicVector(query, cs);
+    setChildrenAndParentList(query);
+    weight = buildWeightCS(data, query, cs);
+    Backtrack::backTrack(data, query, cs, emptyPartialEmbedding);
+}
+
+
 void Backtrack::backTrack(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet partialEmbeddingM) {
     // query graph is already in DAG format
 
@@ -119,17 +150,17 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
          *  Mark v as unvisited;
          * */
 
+        Vertex root = topologicVector.at(0);
+        int rootCandidateSize = cs.GetCandidateSize(root);
 
-        int rootCandidateSize = cs.GetCandidateSize(0);
-
-        std::vector<Vertex> extendableQueryNodes = getChildList(query, 0);
+        std::vector<Vertex> extendableQueryNodes = getChildList(query, root);
         partialEmbeddingM.extendable.insert(extendableQueryNodes.begin(), extendableQueryNodes.end());
 
 
         for (int i = 0; i < rootCandidateSize; ++i) {
-            Vertex v = cs.GetCandidate(0,i);
+            Vertex v = cs.GetCandidate(root,i);
 //            std::cout << "u : " << 0 << ", v : " << v << std::endl;
-            partialEmbeddingM.PartialEmbedding[0] = v;
+            partialEmbeddingM.PartialEmbedding[root] = v;
             visitedSet.insert(v);
             Backtrack::backTrack(data, query, cs, partialEmbeddingM);
             visitedSet.erase(visitedSet.find(v));
@@ -161,7 +192,6 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         // Candidate size ordering for decision_switch = 1
         // Path size ordering for decision_switch = 2
         int decision_switch = 2;
-
         if (decision_switch == 1){
             // find candidate with min |C_M(u)|
             for (auto tempCandidate : candidate){
@@ -211,33 +241,23 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             if (visitedSet.count(v) == 0) {
 
                 // line for debugging
-                std::cout << "u : " << u << ", v : " << v << std::endl;
-//                if (u == 33 && v == 123){
-//                    std::cout << std::endl;
-//                }
-
+//                std::cout << "u : " << u << ", v : " << v << ", partial Embedding Size : "<< partialEmbeddingM.PartialEmbedding.size() << std::endl;
 
                 newPartialEmbedding.PartialEmbedding[u] = v;
                 visitedSet.insert(v);
                 Backtrack::backTrack(data, query, cs, newPartialEmbedding);
                 visitedSet.erase(visitedSet.find(v));
-                }
             }
         }
+    }
     return;
 
 
-    }
-
-
-
-void Backtrack::PrintAllMatches(const Graph &data, const Graph &query, const CandidateSet &cs) {
-    std::cout << "t " << query.GetNumVertices() << "\n";
-    // implement your code here.
-    MapAndSet emptyPartialEmbedding;
-    weight = buildWeightCS(data, query, cs);
-    Backtrack::backTrack(data, query, cs, emptyPartialEmbedding);
 }
+
+
+
+
 
 
 std::map<Vertex, std::map<Vertex, unsigned int>> Backtrack::buildWeightCS(const Graph &data, const Graph &query, const CandidateSet &cs) {
@@ -259,7 +279,8 @@ std::map<Vertex, std::map<Vertex, unsigned int>> Backtrack::buildWeightCS(const 
 
     // assign 1 to "end of path" query vertex
     bool haveSingleParentChild = false;
-    for (int i = query.GetNumVertices() -1; i >= 0 ; --i) {
+    for (/*int i = query.GetNumVertices() -1; i >= 0 ; --i*/ auto r = topologicVector.rbegin(); r != topologicVector.rend(); r++) {
+        int i = *r;
         std::vector<Vertex> childList = getChildList(query, i);
         for (Vertex child : childList){
             std::vector<Vertex> parentList = getParentList(query, child);
@@ -282,7 +303,8 @@ std::map<Vertex, std::map<Vertex, unsigned int>> Backtrack::buildWeightCS(const 
     }
 
     // assign weight from the bottom up manner
-    for (int u_current = query.GetNumVertices() - 1; u_current >= 0 ; --u_current) {
+    for (/*int u_current = query.GetNumVertices() - 1; u_current >= 0 ; --u_current*/ auto r = topologicVector.rbegin(); r != topologicVector.rend(); r++) {
+        int u_current = *r;
         // if already assigned, continue
         if (uncheckedQueryVertices.find(u_current) == uncheckedQueryVertices.end()){
             continue;
@@ -310,18 +332,98 @@ std::map<Vertex, std::map<Vertex, unsigned int>> Backtrack::buildWeightCS(const 
                 weightSum += current_weight;
             }
             // minWeight version VS maxWeight version VS weightSum Version
-            weight[u_current][v_current] = weightSum;
+            weight[u_current][v_current] = minWeight;
         }
     }
 
     return weight;
 }
 
+
+
+std::vector<Vertex> Backtrack::getTopologicVector(const Graph &query, const CandidateSet &cs){
+    std::unordered_set<Vertex> visited;
+    std::vector<Vertex> topologicVector;
+    std::vector<Vertex> neighbors;
+    std::queue<Vertex> Q;
+    Vertex v; // v is in query graph
+
+    /* Get r */
+    Vertex r = Backtrack::getMinCandidateVertex(query, cs);
+
+    /* Traverse */
+    visited.insert(r);
+    topologicVector.push_back(r);
+    Q.push(r);
+    while (!Q.empty()){
+        v = Q.front();
+        Q.pop();
+        /* Get neighbors */
+        neighbors = Backtrack::getNeighborList(query, v);
+
+        /* Sort neighbors */
+        std::sort(neighbors.begin(), neighbors.end(), [query, cs](Vertex u, Vertex v) {
+            Label label_u = query.GetLabel(u);
+            Label label_v = query.GetLabel(v);
+            if (cs.GetCandidateSize(u) != cs.GetCandidateSize(v))
+                return cs.GetCandidateSize(u) < cs.GetCandidateSize(v);
+            else if (query.GetLabelFrequency(label_u) != query.GetLabelFrequency(label_v))
+                return query.GetLabelFrequency(label_u) < query.GetLabelFrequency(label_v);
+            else if (query.GetDegree(u) != query.GetDegree(v))
+                return query.GetDegree(u) > query.GetDegree(v);
+            else
+                return u < v;
+        });
+
+        /* Enqeue adjacent to v*/
+        for (auto adj_v : neighbors){
+            if (visited.count(adj_v) == 0){
+                visited.insert(adj_v);
+                topologicVector.push_back(adj_v);
+                Q.push(adj_v);
+            }
+        }
+
+    }
+
+//    for (int i = 0; i < query.GetNumVertices(); ++i) {
+//        topologicVector.push_back(i);
+//    }
+//
+//            std::sort(topologicVector.begin(), topologicVector.end(), [cs](Vertex u, Vertex v) {
+//            if (cs.GetCandidateSize(u) != cs.GetCandidateSize(v))
+//                return cs.GetCandidateSize(u) < cs.GetCandidateSize(v);
+//            else
+//                return u < v;
+//        });
+
+
+    return topologicVector;
+}
+
+
+Vertex Backtrack::getMinCandidateVertex(const Graph &graph, const CandidateSet &cs){
+    Vertex r = -1;
+    size_t minCuSize = UINT_MAX;
+    size_t numVertices = graph.GetNumVertices();
+    for (size_t u = 0; u < numVertices; ++u){
+        double currentCuSize = cs.GetCandidateSize(u);
+        if (currentCuSize < minCuSize){
+            r = u;
+            minCuSize = currentCuSize;
+        }
+    }
+
+    return r;
+}
+
+
 bool Backtrack::cmp(std::pair<Vertex, unsigned int> &w1, std::pair<Vertex, unsigned int> &w2) {
-    // < is mimimum first (increasing order)
+    // < is minimum first (increasing order)
     // > is maximum first (decreasing order)
     return w1.second < w2.second;
 }
+
 
 
 
