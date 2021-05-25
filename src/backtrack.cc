@@ -229,7 +229,55 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query, const Can
     // implement your code here.
     MapAndSet emptyPartialEmbedding;
     weight = buildWeightCS(data, query, cs);
+    std::vector<Vertex> topologicVector = Backtrack::getTopologicVector(query, cs);
     Backtrack::backTrack(data, query, cs, emptyPartialEmbedding);
+}
+
+std::vector<Vertex> Backtrack::getTopologicVector(const Graph &query, const CandidateSet &cs){
+    std::unordered_set<Vertex> visited;
+    std::vector<Vertex> topologicVector;
+    std::queue<Vertex> Q;
+    Vertex v; // v is in query graph
+    Vertex adj_v;
+    size_t firstNeighborOffset;
+    size_t endNeighborOffset;
+
+
+    /* Get r */
+    Vertex r;
+    size_t minCuSize = UINT_MAX;
+    size_t numVertices = query.GetNumVertices();
+    for (size_t u = 0; u < numVertices; ++u){
+        size_t currentCuSize = cs.GetCandidateSize(u);
+        if (currentCuSize < minCuSize){
+            r = u;
+            minCuSize = currentCuSize;
+        }
+    }
+
+    /* Traverse */
+    visited.insert(r);
+    topologicVector.push_back(r);
+    Q.push(r);
+    while (!Q.empty()){
+        v = Q.front();
+        Q.pop();
+
+        /* Enqeue adjacent to v*/
+        firstNeighborOffset = query.GetNeighborStartOffset(v);
+        endNeighborOffset = query.GetNeighborEndOffset(v);
+        for (size_t i = firstNeighborOffset; i < endNeighborOffset; ++i) {
+            adj_v = query.GetNeighbor(i);
+            if (visited.count(adj_v) == 0){
+                visited.insert(adj_v);
+                topologicVector.push_back(adj_v);
+                Q.push(adj_v);
+            }
+
+        }
+
+    }
+    return topologicVector;
 }
 
 
