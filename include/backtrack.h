@@ -34,6 +34,9 @@ public:
     std::vector<Vertex> getChildList(const Graph &query, Vertex index);
     std::vector<Vertex> getParentList(const Graph &query, Vertex index);
     std::vector<Vertex> getAllCandidate(const CandidateSet &cs, Vertex queryVertex);
+
+    int countFurtherOccurrence (const Graph &query, const CandidateSet &cs, const std::vector<Vertex>& unvisitedQueryVertices, Vertex u, Vertex v);
+
     void modifyExtendable(const Graph &graph ,std::vector<Vertex>& extendableQueryNodes, const std::map<Vertex, Vertex>& newPartialEmbedding);
 
     std::map<Vertex, std::map<Vertex, unsigned int>> buildWeightCS(const Graph &data, const Graph &query, const CandidateSet &cs);

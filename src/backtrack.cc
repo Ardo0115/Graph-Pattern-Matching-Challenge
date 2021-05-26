@@ -177,14 +177,19 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
          *      Backtrack(q, q_d, CS, M);
          *      Mark v as unvisited;
          *      */
-
-
         // select and remove from extendable node
         std::map<Vertex, std::vector<Vertex>> candidate = findCandidate(data, query, cs, partialEmbeddingM);
         if (candidate.size() == 0) return; // no extendable vertex
 //        if (partialEmbeddingM.extendable.empty()) return;
 
         int minWeight = INT_MAX;
+        // find unvisited query node
+        std::vector<Vertex> unvisitedQueryVertices(topologicVector.begin(), topologicVector.end());
+        for (Vertex query_u : unvisitedQueryVertices){
+            if (partialEmbeddingM.PartialEmbedding.find(query_u) != partialEmbeddingM.PartialEmbedding.end()){
+                unvisitedQueryVertices.erase(std::remove(unvisitedQueryVertices.begin(), unvisitedQueryVertices.end(), query_u), unvisitedQueryVertices.end());
+            }
+        }
         std::pair<Vertex, std::vector<Vertex>> selectedCandidate;
 
         // Candidate size ordering for decision_switch = 1
@@ -205,6 +210,10 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
                 int current_weight = 0;
                 for (Vertex extendableDataVertex : tempCandidate.second){
                     current_weight += weight[tempCandidate.first][extendableDataVertex];
+//                    if (current_weight < countFurtherOccurrence(query, cs, unvisitedQueryVertices, tempCandidate.first, extendableDataVertex)){
+//                        current_weight = countFurtherOccurrence(query, cs, unvisitedQueryVertices, tempCandidate.first, extendableDataVertex);
+//                    }
+//                    current_weight += countFurtherOccurrence(query, cs, unvisitedQueryVertices, tempCandidate.first, extendableDataVertex);
                 }
                 if (current_weight < minWeight){
                     minWeight = current_weight;
@@ -229,39 +238,27 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
         std::vector<Vertex> v_list = selectedCandidate.second;
         std::vector<std::pair<Vertex, unsigned int>> verticesAndWeight;
-        std::vector<Vertex> unvisitedQueryVertices(topologicVector.begin(), topologicVector.end());
-        for (Vertex query_u : unvisitedQueryVertices){
-            if (partialEmbeddingM.PartialEmbedding.find(query_u) != partialEmbeddingM.PartialEmbedding.end()){
-                unvisitedQueryVertices.erase(std::remove(unvisitedQueryVertices.begin(), unvisitedQueryVertices.end(), query_u), unvisitedQueryVertices.end());
-            }
-        }
+//        std::random_shuffle(verticesAndWeight.begin(), verticesAndWeight.end());
+
+
+
         for (Vertex v : v_list){
             // TODO
             // weight 대신에 further_occurrence 를 넣자
             // u 보다 topologic sort vec 뒤에 있는 애들 중 라벨이 같은 에들 중에서
             // v 가 몇변 등장하는 지 세서 넣어주자.
-            int further_occurrence = 0;
-//            auto currentIndexIterator = std::find(topologicVector.begin(), topologicVector.end(), u);
-            for (Vertex furtherQueryNode : unvisitedQueryVertices){
-                if (query.GetLabel(u) != query.GetLabel(furtherQueryNode)){
-                    continue;
-                }
-                std::vector<Vertex> furtherCandidateList_u = getAllCandidate(cs, furtherQueryNode);
-                if ( std::find(furtherCandidateList_u.begin(), furtherCandidateList_u.end(), v) != furtherCandidateList_u.end()){
-                    further_occurrence++;
-                }
-            }
-
+            int further_occurrence = countFurtherOccurrence(query, cs, unvisitedQueryVertices, u, v);
             verticesAndWeight.push_back(std::make_pair(v, further_occurrence));
         }
         std::sort(verticesAndWeight.begin(), verticesAndWeight.end(), cmp);
+        std::random_shuffle(verticesAndWeight.begin(), verticesAndWeight.end());
 
         for (/*Vertex v : v_list*/ std::pair<Vertex, unsigned int> vertexAndWeight : verticesAndWeight) {
             Vertex v = vertexAndWeight.first;
             if (visitedSet.count(v) == 0) {
 
                 // line for debugging
-                std::cout << "u : " << u << ", v : " << v << ", partial Embedding Size : "<< partialEmbeddingM.PartialEmbedding.size() << std::endl;
+                std::cout << "u : " << u << ", v : " << v << ", partial Embedding Size : "<< newPartialEmbedding.PartialEmbedding.size() << std::endl;
 
                 newPartialEmbedding.PartialEmbedding[u] = v;
                 visitedSet.insert(v);
@@ -502,6 +499,21 @@ bool Backtrack::cmp(std::pair<Vertex, unsigned int> &w1, std::pair<Vertex, unsig
     // < is minimum first (increasing order)
     // > is maximum first (decreasing order)
     return w1.second < w2.second;
+}
+
+int Backtrack::countFurtherOccurrence (const Graph &query, const CandidateSet &cs, const std::vector<Vertex>& unvisitedQueryVertices, Vertex u, Vertex v) {
+    int further_occurrence = 0;
+//            auto currentIndexIterator = std::find(topologicVector.begin(), topologicVector.end(), u);
+    for (Vertex furtherQueryNode : unvisitedQueryVertices){
+        if (query.GetLabel(u) != query.GetLabel(furtherQueryNode)){
+            continue;
+        }
+        std::vector<Vertex> furtherCandidateList_u = getAllCandidate(cs, furtherQueryNode);
+        if ( std::find(furtherCandidateList_u.begin(), furtherCandidateList_u.end(), v) != furtherCandidateList_u.end()){
+            further_occurrence++;
+        }
+    }
+    return further_occurrence;
 }
 
 
