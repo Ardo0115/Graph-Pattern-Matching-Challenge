@@ -13,7 +13,7 @@
 #include "MapAndSet.h"
 #include <unordered_set>
 #include <queue>
-
+#include <algorithm>
 
 class Backtrack {
 public:
@@ -23,8 +23,11 @@ public:
     void backTrack(const Graph &data, const Graph &query, const CandidateSet &cs, MapAndSet partialEmbeddingM);
 
     std::map<Vertex, std::vector<Vertex>> findCandidate(const Graph &data, const Graph &query, const CandidateSet &cs, const MapAndSet& partialEmbedding);
+    std::vector<Vertex> getConnectedVertices(const std::set<Vertex> &toFindSet, const std::set<Vertex> &fromFindSet, const Graph &graph);
+    Vertex getNextTopologicElem(std::vector<Vertex> &S, const Graph &query, const CandidateSet &cs);
+    std::set<Vertex> getAllVertices(const Graph &query);
 
-    Vertex getMinCandidateVertex(const Graph &graph, const CandidateSet &cs);
+    Vertex getMinLabelVertex(const Graph &graph, const CandidateSet &cs);
     std::vector<Vertex> getTopologicVector(const Graph &graph, const CandidateSet &cs);
     void setChildrenAndParentList(const Graph &query);
     std::vector<Vertex> getNeighborList(const Graph &graph, Vertex index);
