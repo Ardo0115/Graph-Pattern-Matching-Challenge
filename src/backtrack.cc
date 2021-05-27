@@ -24,13 +24,13 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findCandidate(const Graph &data
         for (Vertex v : allCandidate){
             isCurrentDataVertexConnectedToParent = true;
             std::vector<Vertex> parentQueryVertices = getParentList(query, currentExtendableVertex);
-
             for (Vertex parentQueryVertex : parentQueryVertices){
                 if (data.IsNeighbor(currentEmbedding[parentQueryVertex], v) == false){
                     isCurrentDataVertexConnectedToParent = false;
                     break;
                 }
             }
+            if (visitedSet.find(v) != visitedSet.end()){continue;}
             if (isCurrentDataVertexConnectedToParent){
                 result[currentExtendableVertex].insert(result[currentExtendableVertex].end(), v);
             }
@@ -156,8 +156,18 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         partialEmbeddingM.extendable.insert(extendableQueryNodes.begin(), extendableQueryNodes.end());
 
 
-        for (int i = 0; i < rootCandidateSize; ++i) {
-            Vertex v = cs.GetCandidate(root,i);
+        std::vector<std::pair<Vertex, unsigned int>> verticesAndWeight;
+
+        std::vector<Vertex> v_list = getAllCandidate(cs, root);
+        for (Vertex v : v_list){
+            verticesAndWeight.push_back(std::make_pair(v, weight[root][v]));
+        }
+        std::sort(verticesAndWeight.begin(), verticesAndWeight.end(), cmp);
+//        std::random_shuffle(verticesAndWeight.begin(), verticesAndWeight.end());
+
+        for (std::pair<Vertex, unsigned int> vertexAndWeight : verticesAndWeight) {
+            Vertex v = vertexAndWeight.first;
+//            Vertex v = cs.GetCandidate(root,7);
 //            std::cout << "u : " << 0 << ", v : " << v << std::endl;
             partialEmbeddingM.PartialEmbedding[root] = v;
             visitedSet.insert(v);
@@ -251,14 +261,15 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             verticesAndWeight.push_back(std::make_pair(v, further_occurrence));
         }
         std::sort(verticesAndWeight.begin(), verticesAndWeight.end(), cmp);
-        std::random_shuffle(verticesAndWeight.begin(), verticesAndWeight.end());
+//        std::random_shuffle(verticesAndWeight.begin(), verticesAndWeight.end());
 
         for (/*Vertex v : v_list*/ std::pair<Vertex, unsigned int> vertexAndWeight : verticesAndWeight) {
             Vertex v = vertexAndWeight.first;
             if (visitedSet.count(v) == 0) {
-
                 // line for debugging
-                std::cout << "u : " << u << ", v : " << v << ", partial Embedding Size : "<< newPartialEmbedding.PartialEmbedding.size() << std::endl;
+//                std::cout << "u : " << u << ", v : " << v << ", partial Embedding Size : "<< newPartialEmbedding.PartialEmbedding.size() << std::endl;
+
+
 
                 newPartialEmbedding.PartialEmbedding[u] = v;
                 visitedSet.insert(v);
@@ -405,7 +416,7 @@ std::vector<Vertex> Backtrack::getTopologicVector(const Graph &query, const Cand
     unvisited = Backtrack::getAllVertices(query);
 
     /* Get r */
-    Vertex r = Backtrack::getMinLabelVertex(query, cs);
+    Vertex r = Backtrack::getMinlabelVertex(query, cs);
 
     /* Traverse */
     visited.insert(r);
@@ -427,6 +438,7 @@ std::vector<Vertex> Backtrack::getTopologicVector(const Graph &query, const Cand
     return topologicVector;
 }
 
+// DAG ordering by BFS
 
 //std::vector<Vertex> Backtrack::getTopologicVector(const Graph &query, const CandidateSet &cs){
 //    std::unordered_set<Vertex> visited;
@@ -436,7 +448,7 @@ std::vector<Vertex> Backtrack::getTopologicVector(const Graph &query, const Cand
 //    Vertex v; // v is in query graph
 //
 //    /* Get r */
-//    Vertex r = Backtrack::getMinPatternVertex(query, cs);
+//    Vertex r = Backtrack::getMinlabelVertex(query, cs);
 ////    Vertex r = 1;
 //
 //    /* Traverse */
@@ -478,7 +490,7 @@ std::vector<Vertex> Backtrack::getTopologicVector(const Graph &query, const Cand
 //}
 
 
-Vertex Backtrack::getMinLabelVertex(const Graph &graph, const CandidateSet &cs){
+Vertex Backtrack::getMinlabelVertex(const Graph &graph, const CandidateSet &cs){
     Vertex r = -1;
     size_t minCuSize = UINT_MAX;
     size_t numVertices = graph.GetNumVertices();
@@ -498,7 +510,11 @@ Vertex Backtrack::getMinLabelVertex(const Graph &graph, const CandidateSet &cs){
 bool Backtrack::cmp(std::pair<Vertex, unsigned int> &w1, std::pair<Vertex, unsigned int> &w2) {
     // < is minimum first (increasing order)
     // > is maximum first (decreasing order)
-    return w1.second < w2.second;
+    if (w1.second != w2.second){
+        return w1.second < w2.second;
+    } else {
+        return w1.first > w2.first;
+    }
 }
 
 int Backtrack::countFurtherOccurrence (const Graph &query, const CandidateSet &cs, const std::vector<Vertex>& unvisitedQueryVertices, Vertex u, Vertex v) {

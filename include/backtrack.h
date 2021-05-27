@@ -27,7 +27,7 @@ public:
     Vertex getNextTopologicElem(std::vector<Vertex> &S, const Graph &query, const CandidateSet &cs);
     std::set<Vertex> getAllVertices(const Graph &query);
 
-    Vertex getMinLabelVertex(const Graph &graph, const CandidateSet &cs);
+    Vertex getMinlabelVertex(const Graph &graph, const CandidateSet &cs);
     std::vector<Vertex> getTopologicVector(const Graph &graph, const CandidateSet &cs);
     void setChildrenAndParentList(const Graph &query);
     std::vector<Vertex> getNeighborList(const Graph &graph, Vertex index);

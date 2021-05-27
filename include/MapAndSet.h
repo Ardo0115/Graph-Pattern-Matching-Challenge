@@ -22,6 +22,5 @@ class MapAndSet {
     std::map<Vertex, Vertex> PartialEmbedding;
     std::set<Vertex> extendable;
 
-
 };
 #endif //SUBGRAPH_MATCHING_MAPANDSET_H
