@@ -30,7 +30,7 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findCandidate(const Graph &data
                     break;
                 }
             }
-            if (visitedSet.find(v) != visitedSet.end()){continue;}
+//            if (visitedSet.find(v) != visitedSet.end()){continue;}
             if (isCurrentDataVertexConnectedToParent){
                 result[currentExtendableVertex].insert(result[currentExtendableVertex].end(), v);
             }
@@ -98,23 +98,38 @@ std::vector<Vertex> Backtrack::getAllCandidate(const CandidateSet &cs, Vertex qu
 
 void Backtrack::modifyExtendable(const Graph &graph, std::vector<Vertex>& extendableQueryNodes, const std::map<Vertex, Vertex>& partialEmbedding) {
 
-    for (Vertex extend : extendableQueryNodes){
+    for (auto extend = extendableQueryNodes.begin(); extend != extendableQueryNodes.end();) {
         // if query vertex u (extend) is already visited, remove this and continue
-        if (partialEmbedding.find(extend) != partialEmbedding.end()){
-            extendableQueryNodes.erase(std::remove(extendableQueryNodes.begin(), extendableQueryNodes.end(), extend), extendableQueryNodes.end());
-            continue;
+        // TODO 여기서 정상적으로 처리가 되지 않고 있음
+        // iteration 도중에 extend를 삭제해서 정상적으로 작동 X
+        if (partialEmbedding.find(*extend) != partialEmbedding.end()) {
+//            extendableQueryNodes.erase(std::remove(extendableQueryNodes.begin(), extendableQueryNodes.end(), extend), extendableQueryNodes.end());
+            extendableQueryNodes.erase(extend);
+        } else {
+            ++extend;
         }
+    }
 
+    bool isAllParentInPartialEmbedding = true;
+    for (auto extend = extendableQueryNodes.begin(); extend != extendableQueryNodes.end();) {
         // if all the parent of query vertex u is not in partial embedding, remove this and continue to next extendable query vertex u
-        std::vector<Vertex> parentList = getParentList(graph, extend);
+        std::vector<Vertex> parentList = getParentList(graph, *extend);
         for (Vertex parent : parentList){
             // if parent does not exist in partial embedding
             if (partialEmbedding.find(parent) == partialEmbedding.end()){
                 // remove current extendable vertex(which do not have all its parent vertex in partial embedding) from the extendable list
-                extendableQueryNodes.erase(std::remove(extendableQueryNodes.begin(), extendableQueryNodes.end(), extend), extendableQueryNodes.end());
+                isAllParentInPartialEmbedding = false;
                 break;
             }
         }
+        if (isAllParentInPartialEmbedding == false) {
+            extendableQueryNodes.erase(extend);
+            isAllParentInPartialEmbedding = true;
+        }else {
+            ++extend;
+
+        }
+
     }
 //    return extendableQueryNodes;
 }
@@ -167,8 +182,8 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
         for (std::pair<Vertex, unsigned int> vertexAndWeight : verticesAndWeight) {
             Vertex v = vertexAndWeight.first;
-//            Vertex v = cs.GetCandidate(root,7);
-//            std::cout << "u : " << 0 << ", v : " << v << std::endl;
+
+//            std::cout << "u : " << root << ", v : " << v << std::endl;
             partialEmbeddingM.PartialEmbedding[root] = v;
             visitedSet.insert(v);
             Backtrack::backTrack(data, query, cs, partialEmbeddingM);
@@ -261,7 +276,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             verticesAndWeight.push_back(std::make_pair(v, further_occurrence));
         }
         std::sort(verticesAndWeight.begin(), verticesAndWeight.end(), cmp);
-//        std::random_shuffle(verticesAndWeight.begin(), verticesAndWeight.end());
+        std::random_shuffle(verticesAndWeight.begin(), verticesAndWeight.end());
 
         for (/*Vertex v : v_list*/ std::pair<Vertex, unsigned int> vertexAndWeight : verticesAndWeight) {
             Vertex v = vertexAndWeight.first;
