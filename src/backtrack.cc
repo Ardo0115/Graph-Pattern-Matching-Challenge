@@ -127,7 +127,6 @@ void Backtrack::modifyExtendable(const Graph &graph, std::vector<Vertex>& extend
             isAllParentInPartialEmbedding = true;
         }else {
             ++extend;
-
         }
 
     }
@@ -166,23 +165,30 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
          * */
 
         Vertex root = topologicVector.at(0);
+
         int rootCandidateSize = cs.GetCandidateSize(root);
         std::vector<Vertex> extendableQueryNodes = getChildList(query, root);
         partialEmbeddingM.extendable.insert(extendableQueryNodes.begin(), extendableQueryNodes.end());
 
+        std::vector<Vertex> unvisitedQueryVertices(topologicVector.begin(), topologicVector.end());
+        unvisitedQueryVertices.erase(std::remove(unvisitedQueryVertices.begin(), unvisitedQueryVertices.end(), root), unvisitedQueryVertices.end());
 
-        std::vector<std::pair<Vertex, unsigned int>> verticesAndWeight;
 
+//        std::vector<std::pair<Vertex, unsigned int>> verticesAndWeight;
+//
         std::vector<Vertex> v_list = getAllCandidate(cs, root);
-        for (Vertex v : v_list){
-            verticesAndWeight.push_back(std::make_pair(v, weight[root][v]));
-        }
-        std::sort(verticesAndWeight.begin(), verticesAndWeight.end(), cmp);
-//        std::random_shuffle(verticesAndWeight.begin(), verticesAndWeight.end());
+//        for (Vertex v : v_list){
+//            int further_count = countFurtherOccurrence(query, cs, unvisitedQueryVertices, root, v);
+//            verticesAndWeight.push_back(std::make_pair(v, weight[root][v]));
+//            verticesAndWeight.push_back(std::make_pair(v, further_count));
+//        }
+//        std::sort(verticesAndWeight.begin(), verticesAndWeight.end(), cmp);
 
-        for (std::pair<Vertex, unsigned int> vertexAndWeight : verticesAndWeight) {
-            Vertex v = vertexAndWeight.first;
 
+        for (/*std::pair<Vertex,  unsigned int> vertexAndWeight : verticesAndWeight*/int i = rootCandidateSize -1; i >= 0; --i) {
+//            Vertex v = vertexAndWeight.first;
+//            Vertex v = verticesAndWeight.at(9).first;
+            Vertex v = v_list.at(i);
 //            std::cout << "u : " << root << ", v : " << v << std::endl;
             partialEmbeddingM.PartialEmbedding[root] = v;
             visitedSet.insert(v);
@@ -202,6 +208,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
          *      Backtrack(q, q_d, CS, M);
          *      Mark v as unvisited;
          *      */
+
         // select and remove from extendable node
         std::map<Vertex, std::vector<Vertex>> candidate = findCandidate(data, query, cs, partialEmbeddingM);
         if (candidate.size() == 0) return; // no extendable vertex
@@ -219,7 +226,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
 
         // Candidate size ordering for decision_switch = 1
         // Path size ordering for decision_switch = 2
-        int decision_switch = 2;
+        int decision_switch = 1;
         if (decision_switch == 1){
             // find candidate with min |C_M(u)|
             for (auto tempCandidate : candidate){
@@ -272,8 +279,8 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             // weight 대신에 further_occurrence 를 넣자
             // u 보다 topologic sort vec 뒤에 있는 애들 중 라벨이 같은 에들 중에서
             // v 가 몇변 등장하는 지 세서 넣어주자.
-            int further_occurrence = countFurtherOccurrence(query, cs, unvisitedQueryVertices, u, v);
-            verticesAndWeight.push_back(std::make_pair(v, further_occurrence));
+//            int further_occurrence = countFurtherOccurrence(query, cs, unvisitedQueryVertices, u, v);
+            verticesAndWeight.push_back(std::make_pair(v, weight[u][v]));
         }
         std::sort(verticesAndWeight.begin(), verticesAndWeight.end(), cmp);
         std::random_shuffle(verticesAndWeight.begin(), verticesAndWeight.end());
