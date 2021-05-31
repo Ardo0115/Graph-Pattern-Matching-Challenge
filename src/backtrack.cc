@@ -19,18 +19,18 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findCandidate(const Graph &data
     bool isCurrentDataVertexConnectedToParent;
 
     for (Vertex currentExtendableVertex : currentExtendable){
+        std::vector<Vertex> parentQueryVertices = getParentList(query, currentExtendableVertex);
 
         std::vector<Vertex> allCandidate = getAllCandidate(cs, currentExtendableVertex);
         for (Vertex v : allCandidate){
+//            if (visitedSet.find(v) != visitedSet.end()){continue;}
             isCurrentDataVertexConnectedToParent = true;
-            std::vector<Vertex> parentQueryVertices = getParentList(query, currentExtendableVertex);
             for (Vertex parentQueryVertex : parentQueryVertices){
                 if (data.IsNeighbor(currentEmbedding[parentQueryVertex], v) == false){
                     isCurrentDataVertexConnectedToParent = false;
                     break;
                 }
             }
-//            if (visitedSet.find(v) != visitedSet.end()){continue;}
             if (isCurrentDataVertexConnectedToParent){
                 result[currentExtendableVertex].insert(result[currentExtendableVertex].end(), v);
             }
@@ -212,7 +212,8 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         // select and remove from extendable node
         std::map<Vertex, std::vector<Vertex>> candidate = findCandidate(data, query, cs, partialEmbeddingM);
         if (candidate.size() == 0) return; // no extendable vertex
-//        if (partialEmbeddingM.extendable.empty()) return;
+        if (partialEmbeddingM.extendable.size() != candidate.size()) return;
+//        std::cout << partialEmbeddingM.extendable.size() << ", " << candidate.size() << std::endl;
 
         int minWeight = INT_MAX;
         // find unvisited query node
@@ -252,6 +253,45 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
                     selectedCandidate = tempCandidate;
                 }
             }
+        } else if (decision_switch == 3 ){
+            // BFS order search
+            for (Vertex BFS_vertex : topologicVector){
+                if (candidate.find(BFS_vertex) != candidate.end()){
+                    selectedCandidate = std::make_pair(BFS_vertex, candidate[BFS_vertex]);
+                }
+            }
+        } else if (decision_switch == 4 ){
+            // Max parent Number
+            int maxParentNumber = INT_MIN;
+            for (auto tempCandidate : candidate){
+                int parentNumber = getParentList(query, tempCandidate.first).size();
+                if (maxParentNumber < parentNumber){
+                    maxParentNumber = parentNumber;
+                    selectedCandidate = tempCandidate;
+                }
+            }
+        } else if (decision_switch == 5 ){
+            // Max parent Number
+            int maxChildNumber = INT_MIN;
+            for (auto tempCandidate : candidate){
+                int childNumber = getChildList(query, tempCandidate.first).size();
+                if (maxChildNumber < childNumber){
+                    maxChildNumber = childNumber;
+                    selectedCandidate = tempCandidate;
+                }
+            }
+        } else if (decision_switch == 6){
+            // find candidate with min |C_M(u)|/deg(u)
+            double minWeight = (double) INT_MAX;
+            double currentWeight;
+            for (auto tempCandidate : candidate){
+                currentWeight = (double) tempCandidate.second.size() / (double) getParentList(query, tempCandidate.first).size();
+                if (currentWeight < minWeight){
+                    minWeight = currentWeight;
+                    selectedCandidate = tempCandidate;
+
+                }
+            }
         }
 
         Vertex u = selectedCandidate.first;
@@ -283,13 +323,13 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             verticesAndWeight.push_back(std::make_pair(v, weight[u][v]));
         }
         std::sort(verticesAndWeight.begin(), verticesAndWeight.end(), cmp);
-        std::random_shuffle(verticesAndWeight.begin(), verticesAndWeight.end());
+//        std::random_shuffle(verticesAndWeight.begin(), verticesAndWeight.end());
 
         for (/*Vertex v : v_list*/ std::pair<Vertex, unsigned int> vertexAndWeight : verticesAndWeight) {
             Vertex v = vertexAndWeight.first;
             if (visitedSet.count(v) == 0) {
                 // line for debugging
-//                std::cout << "u : " << u << ", v : " << v << ", partial Embedding Size : "<< newPartialEmbedding.PartialEmbedding.size() << std::endl;
+                std::cout << "u : " << u << ", v : " << v << ", partial Embedding Size : "<< newPartialEmbedding.PartialEmbedding.size() << std::endl;
 
 
 
