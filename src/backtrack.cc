@@ -332,7 +332,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
             Vertex v = vertexAndWeight.first;
             if (visitedSet.count(v) == 0) {
                 // line for debugging
-                std::cout << "u : " << u << ", v : " << v << ", partial Embedding Size : "<< newPartialEmbedding.PartialEmbedding.size() << std::endl;
+                // std::cout << "u : " << u << ", v : " << v << ", partial Embedding Size : "<< newPartialEmbedding.PartialEmbedding.size() << std::endl;
 
 
 
