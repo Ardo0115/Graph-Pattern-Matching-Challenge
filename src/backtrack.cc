@@ -167,7 +167,9 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         Vertex root = topologicVector.at(0);
 
         int rootCandidateSize = cs.GetCandidateSize(root);
+        partialEmbeddingM.PartialEmbedding[root] = 0;
         std::vector<Vertex> extendableQueryNodes = getChildList(query, root);
+        modifyExtendable(query, extendableQueryNodes, partialEmbeddingM.PartialEmbedding);
         partialEmbeddingM.extendable.insert(extendableQueryNodes.begin(), extendableQueryNodes.end());
 
         std::vector<Vertex> unvisitedQueryVertices(topologicVector.begin(), topologicVector.end());
