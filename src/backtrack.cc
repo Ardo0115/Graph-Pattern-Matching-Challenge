@@ -167,9 +167,11 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         Vertex root = topologicVector.at(0);
 
         int rootCandidateSize = cs.GetCandidateSize(root);
+        partialEmbeddingM.PartialEmbedding[root] = -1;
+
         std::vector<Vertex> extendableQueryNodes = getChildList(query, root);
         partialEmbeddingM.extendable.insert(extendableQueryNodes.begin(), extendableQueryNodes.end());
-
+        modifyExtendable(query, extendableQueryNodes, partialEmbeddingM.PartialEmbedding);
         std::vector<Vertex> unvisitedQueryVertices(topologicVector.begin(), topologicVector.end());
         unvisitedQueryVertices.erase(std::remove(unvisitedQueryVertices.begin(), unvisitedQueryVertices.end(), root), unvisitedQueryVertices.end());
 
@@ -297,7 +299,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         Vertex u = selectedCandidate.first;
         MapAndSet newPartialEmbedding(partialEmbeddingM);
 
-        newPartialEmbedding.PartialEmbedding[u] = 0; // just mark u is in partialEmbedding with meaningless value
+        newPartialEmbedding.PartialEmbedding[u] = -1; // just mark u is in partialEmbedding with meaningless value
         std::vector<Vertex> extendableQueryNodes = getChildList(query, u);
         modifyExtendable(query, extendableQueryNodes, newPartialEmbedding.PartialEmbedding);
         newPartialEmbedding.extendable.erase( u );
