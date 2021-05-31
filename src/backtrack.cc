@@ -170,6 +170,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         partialEmbeddingM.PartialEmbedding[root] = -1;
 
         std::vector<Vertex> extendableQueryNodes = getChildList(query, root);
+        modifyExtendable(query, extendableQueryNodes, partialEmbeddingM.PartialEmbedding);
         partialEmbeddingM.extendable.insert(extendableQueryNodes.begin(), extendableQueryNodes.end());
         modifyExtendable(query, extendableQueryNodes, partialEmbeddingM.PartialEmbedding);
         std::vector<Vertex> unvisitedQueryVertices(topologicVector.begin(), topologicVector.end());
