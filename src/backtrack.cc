@@ -199,7 +199,7 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         if (candidate.size() == 0) return; // no extendable vertex
         if (partialEmbeddingM.extendable.size() != candidate.size()) return;
 
-        int minWeight = INT_MAX;
+        size_t minWeight = UINT_MAX;
         /* Find unvisited query node */
         std::vector<Vertex> unvisitedQueryVertices(topologicVector.begin(), topologicVector.end());
         for (Vertex query_u : unvisitedQueryVertices){
@@ -320,7 +320,7 @@ Vertex Backtrack::getMinlabelVertex(const Graph &graph, const CandidateSet &cs){
     size_t minCuSize = UINT_MAX;
     size_t numVertices = graph.GetNumVertices();
     for (size_t u = 0; u < numVertices; ++u){
-        int currentLabelSize = graph.GetLabelFrequency(graph.GetLabel(u)) ;
+        size_t currentLabelSize = graph.GetLabelFrequency(graph.GetLabel(u)) ;
         if (currentLabelSize < minCuSize){
             r = u;
             minCuSize = currentLabelSize;
