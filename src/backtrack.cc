@@ -138,7 +138,6 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query, const Can
     MapAndSet emptyPartialEmbedding;
     Backtrack::topologicVector = Backtrack::getTopologicVector(query, cs);
     setChildrenAndParentList(query);
-    weight = buildWeightCS(data, query, cs);
     Backtrack::backTrack(data, query, cs, emptyPartialEmbedding);
 }
 
@@ -235,16 +234,9 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         newPartialEmbedding.extendable.insert(extendableQueryNodes.begin(), extendableQueryNodes.end());
 
         std::vector<Vertex> v_list = selectedCandidate.second;
-        std::vector<std::pair<Vertex, unsigned int>> verticesAndWeight;
+        std::sort(v_list.begin(), v_list.end(), cmp);
 
-
-        for (Vertex v : v_list){
-            verticesAndWeight.push_back(std::make_pair(v, weight[u][v]));
-        }
-        std::sort(verticesAndWeight.begin(), verticesAndWeight.end(), cmp);
-
-        for (std::pair<Vertex, unsigned int> vertexAndWeight : verticesAndWeight) {
-            Vertex v = vertexAndWeight.first;
+        for (Vertex v : v_list) {
             if (visitedSet.count(v) == 0) {
                 newPartialEmbedding.PartialEmbedding[u] = v;
                 visitedSet.insert(v);
@@ -256,90 +248,6 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
     return;
 
 
-}
-
-
-
-
-
-
-std::map<Vertex, std::map<Vertex, unsigned int>> Backtrack::buildWeightCS(const Graph &data, const Graph &query, const CandidateSet &cs) {
-
-    // initialize weight
-    std::map<Vertex, std::map<Vertex, unsigned int>> weight;
-    for (int i = 0; i < query.GetNumVertices(); ++i) {
-        std::vector<Vertex> allCandidate = getAllCandidate(cs, i);
-        for (Vertex candidate : allCandidate){
-            weight[i][candidate] = 0;
-        }
-    }
-
-    // mark unchecked query vertices
-    std::set<Vertex> uncheckedQueryVertices;
-    for (int i = 0; i < query.GetNumVertices(); ++i) {
-        uncheckedQueryVertices.insert(i);
-    }
-
-    // assign 1 to "end of path" query vertex
-    bool haveSingleParentChild = false;
-    for (auto r = topologicVector.rbegin(); r != topologicVector.rend(); r++) {
-        int i = *r;
-        std::vector<Vertex> childList = getChildList(query, i);
-        for (Vertex child : childList){
-            std::vector<Vertex> parentList = getParentList(query, child);
-            if (parentList.size() == 1){
-                haveSingleParentChild = true;
-                break;
-            }
-        }
-
-        if (haveSingleParentChild){
-            haveSingleParentChild = false;
-            continue;
-        } else {
-            // finally assign 1
-            uncheckedQueryVertices.erase(i);
-            for (int j = 0; j < cs.GetCandidateSize(i); ++j) {
-                weight[i][cs.GetCandidate(i,j)] = 1;
-            }
-        }
-    }
-
-    // assign weight from the bottom up manner
-    // for (auto r = topologicVector.rbegin(); r != topologicVector.rend(); r++) {
-    //     int u_current = *r;
-    //     // if already assigned, continue
-    //     if (uncheckedQueryVertices.find(u_current) == uncheckedQueryVertices.end()){
-    //         continue;
-    //     }
-
-    //     std::vector<Vertex> currentCandidate = getAllCandidate(cs, u_current);
-    //     int minWeight; int maxWeight; int weightSum;
-    //     for (Vertex v_current : currentCandidate){
-    //         minWeight = INT_MAX; maxWeight = INT_MIN; weightSum = 0;
-    //         for (Vertex u : getChildList(query, u_current)){
-    //             int current_weight = 0;
-    //             for (Vertex v : getAllCandidate(cs, u)){
-    //                 if (data.IsNeighbor(v, v_current)){
-    //                     current_weight += weight[u][v];
-    //                 }
-    //             }
-    //             // minWeight Version
-    //             if (current_weight < minWeight){
-    //                 minWeight = current_weight;
-    //             }
-    //             // maxWeight version
-    //             if (current_weight > maxWeight) {
-    //                 maxWeight = current_weight;
-    //             }
-    //             weightSum += current_weight;
-    //         }
-    //         // minWeight version VS maxWeight version VS weightSum Version
-    //         weight[u_current][v_current] = minWeight;
-    //     }
-    // }
-
-    return weight;
 }
 
 std::vector<Vertex> Backtrack::getConnectedVertices(const std::set<Vertex> &toFindSet, const std::set<Vertex> &fromFindSet, const Graph &graph){
@@ -479,14 +387,10 @@ Vertex Backtrack::getMinlabelVertex(const Graph &graph, const CandidateSet &cs){
 }
 
 
-bool Backtrack::cmp(std::pair<Vertex, unsigned int> &w1, std::pair<Vertex, unsigned int> &w2) {
+bool Backtrack::cmp(Vertex w1, Vertex w2) {
     // < is minimum first (increasing order)
     // > is maximum first (decreasing order)
-    if (w1.second != w2.second){
-        return w1.second < w2.second;
-    } else {
-        return w1.first > w2.first;
-    }
+    return w1 > w2;
 }
 
 int Backtrack::countFurtherOccurrence (const Graph &query, const CandidateSet &cs, const std::vector<Vertex>& unvisitedQueryVertices, Vertex u, Vertex v) {

@@ -40,7 +40,7 @@ public:
     void modifyExtendable(const Graph &graph ,std::vector<Vertex>& extendableQueryNodes, const std::map<Vertex, Vertex>& newPartialEmbedding);
 
     std::map<Vertex, std::map<Vertex, unsigned int>> buildWeightCS(const Graph &data, const Graph &query, const CandidateSet &cs);
-    static bool cmp(std::pair<Vertex, unsigned int>& w1, std::pair<Vertex, unsigned int>& w2);
+    static bool cmp(Vertex w1, Vertex w2);
 
 
     std::map<Vertex, std::map<Vertex, unsigned int>> weight;
