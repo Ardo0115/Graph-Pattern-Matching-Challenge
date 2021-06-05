@@ -22,7 +22,6 @@ std::map<Vertex, std::vector<Vertex>> Backtrack::findCandidate(const Graph &data
 
         std::vector<Vertex> allCandidate = getAllCandidate(cs, currentExtendableVertex);
         for (Vertex v : allCandidate){
-//            if (visitedSet.find(v) != visitedSet.end()){continue;}
             isCurrentDataVertexConnectedToParent = true;
             for (Vertex parentQueryVertex : parentQueryVertices){
                 if (data.IsNeighbor(currentEmbedding[parentQueryVertex], v) == false){
@@ -58,7 +57,6 @@ void Backtrack::setChildrenAndParentList(const Graph &query) {
         std::vector<Vertex> parents;
         auto currentIndexIterator = std::find(topologicVector.begin(), topologicVector.end(), index);
         std::vector<Vertex> nextVertices(currentIndexIterator + 1, topologicVector.end());
-//        std::vector<Vertex> previousVertices(topologicVector.begin(), currentIndexIterator);
 
         for (Vertex neighbor : neighbors){
             if (std::find(nextVertices.begin(), nextVertices.end(), neighbor ) != nextVertices.end()){
@@ -99,10 +97,7 @@ void Backtrack::modifyExtendable(const Graph &graph, std::vector<Vertex>& extend
 
     for (auto extend = extendableQueryNodes.begin(); extend != extendableQueryNodes.end();) {
         // if query vertex u (extend) is already visited, remove this and continue
-        // TODO 여기서 정상적으로 처리가 되지 않고 있음
-        // iteration 도중에 extend를 삭제해서 정상적으로 작동 X
         if (partialEmbedding.find(*extend) != partialEmbedding.end()) {
-//            extendableQueryNodes.erase(std::remove(extendableQueryNodes.begin(), extendableQueryNodes.end(), extend), extendableQueryNodes.end());
             extendableQueryNodes.erase(extend);
         } else {
             ++extend;
@@ -129,7 +124,6 @@ void Backtrack::modifyExtendable(const Graph &graph, std::vector<Vertex>& extend
         }
 
     }
-//    return extendableQueryNodes;
 }
 
 void Backtrack::PrintAllMatches(const Graph &data, const Graph &query, const CandidateSet &cs) {
@@ -318,56 +312,7 @@ std::vector<Vertex> Backtrack::getTopologicVector(const Graph &query, const Cand
     return topologicVector;
 }
 
-// DAG ordering by BFS
 
-//std::vector<Vertex> Backtrack::getTopologicVector(const Graph &query, const CandidateSet &cs){
-//    std::unordered_set<Vertex> visited;
-//    std::vector<Vertex> topologicVector;
-//    std::vector<Vertex> neighbors;
-//    std::queue<Vertex> Q;
-//    Vertex v; // v is in query graph
-//
-//    /* Get r */
-//    Vertex r = Backtrack::getMinlabelVertex(query, cs);
-////    Vertex r = 1;
-//
-//    /* Traverse */
-//    visited.insert(r);
-//    topologicVector.push_back(r);
-//    Q.push(r);
-//    while (!Q.empty()){
-//        v = Q.front();
-//        Q.pop();
-//        /* Get neighbors */
-//        neighbors = Backtrack::getNeighborList(query, v);
-//
-//        /* Sort neighbors */
-//        std::sort(neighbors.begin(), neighbors.end(), [query, cs](Vertex u, Vertex v) {
-//            Label label_u = query.GetLabel(u);
-//            Label label_v = query.GetLabel(v);
-//            if (query.GetLabelFrequency(label_u) != query.GetLabelFrequency(label_v))
-//                return query.GetLabelFrequency(label_u) < query.GetLabelFrequency(label_v);
-//            else if (cs.GetCandidateSize(u) != cs.GetCandidateSize(v))
-//                return cs.GetCandidateSize(u) < cs.GetCandidateSize(v);
-//            else if (query.GetDegree(u) != query.GetDegree(v))
-//                return query.GetDegree(u) > query.GetDegree(v);
-//            else
-//                return u < v;
-//        });
-//
-//        /* Enqeue adjacent to v*/
-//        for (auto adj_v : neighbors){
-//            if (visited.count(adj_v) == 0){
-//                visited.insert(adj_v);
-//                topologicVector.push_back(adj_v);
-//                Q.push(adj_v);
-//            }
-//        }
-//
-//    }
-//
-//    return topologicVector;
-//}
 
 
 Vertex Backtrack::getMinlabelVertex(const Graph &graph, const CandidateSet &cs){
@@ -376,7 +321,6 @@ Vertex Backtrack::getMinlabelVertex(const Graph &graph, const CandidateSet &cs){
     size_t numVertices = graph.GetNumVertices();
     for (size_t u = 0; u < numVertices; ++u){
         int currentLabelSize = graph.GetLabelFrequency(graph.GetLabel(u)) ;
-//        double currentCuSize = cs.GetCandidateSize(u);
         if (currentLabelSize < minCuSize){
             r = u;
             minCuSize = currentLabelSize;
@@ -395,7 +339,6 @@ bool Backtrack::cmp(Vertex w1, Vertex w2) {
 
 int Backtrack::countFurtherOccurrence (const Graph &query, const CandidateSet &cs, const std::vector<Vertex>& unvisitedQueryVertices, Vertex u, Vertex v) {
     int further_occurrence = 0;
-//            auto currentIndexIterator = std::find(topologicVector.begin(), topologicVector.end(), u);
     for (Vertex furtherQueryNode : unvisitedQueryVertices){
         if (query.GetLabel(u) != query.GetLabel(furtherQueryNode)){
             continue;

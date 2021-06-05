@@ -27,20 +27,8 @@ int main(int argc, char* argv[]) {
   std::ios_base::sync_with_stdio(false);
   Backtrack backtrack;
 
-  clock_t start, end;
-  double result;
-  start = clock();
-  backtrack.PrintAllMatches(data, query, candidate_set);
-  end = clock();
-  result = (double)(end -start)/CLOCKS_PER_SEC;
 
-  std::string filePath = argv[4];
-  std::ofstream writeFile;
-  writeFile.open(filePath, std::ios_base::app);
-  if (writeFile.is_open()){
-    writeFile << "Execution Time : " << result << "\n";
-    writeFile.close();
-  }
+  backtrack.PrintAllMatches(data, query, candidate_set);
 
   return EXIT_SUCCESS;
 }
