@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
   start = clock();
   backtrack.PrintAllMatches(data, query, candidate_set);
   end = clock();
-  result = (double)(end -start);
+  result = (double)(end -start)/CLOCKS_PER_SEC;
 
   std::string filePath = argv[4];
   std::ofstream writeFile;
