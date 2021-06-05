@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
   Graph data(data_file_name);
   Graph query(query_file_name, true);
   CandidateSet candidate_set(candidate_set_file_name);
-
+  std::ios_base::sync_with_stdio(false);
   Backtrack backtrack;
 
   clock_t start, end;
@@ -41,8 +41,6 @@ int main(int argc, char* argv[]) {
     writeFile << "Execution Time : " << result << "\n";
     writeFile.close();
   }
-  // printf("Execution Time : %fms\n", result);
-
 
   return EXIT_SUCCESS;
 }
