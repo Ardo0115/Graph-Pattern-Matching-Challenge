@@ -228,72 +228,12 @@ void Backtrack::backTrack(const Graph &data, const Graph &query, const Candidate
         }
         std::pair<Vertex, std::vector<Vertex>> selectedCandidate;
 
-        // Candidate size ordering for decision_switch = 1
-        // Path size ordering for decision_switch = 2
-        int decision_switch = 1;
-        if (decision_switch == 1){
-            // find candidate with min |C_M(u)|
-            for (auto tempCandidate : candidate){
-                if (tempCandidate.second.size() < minWeight){
-                    minWeight = tempCandidate.second.size();
-                    selectedCandidate = tempCandidate;
+        // find candidate with min |C_M(u)|
+        for (auto tempCandidate : candidate){
+            if (tempCandidate.second.size() < minWeight){
+                minWeight = tempCandidate.second.size();
+                selectedCandidate = tempCandidate;
 
-                }
-            }
-        } else if (decision_switch == 2 ){
-            // find candidate (u) with min w_M(u)
-            for (auto tempCandidate : candidate){
-                int current_weight = 0;
-                for (Vertex extendableDataVertex : tempCandidate.second){
-                    current_weight += weight[tempCandidate.first][extendableDataVertex];
-//                    if (current_weight < countFurtherOccurrence(query, cs, unvisitedQueryVertices, tempCandidate.first, extendableDataVertex)){
-//                        current_weight = countFurtherOccurrence(query, cs, unvisitedQueryVertices, tempCandidate.first, extendableDataVertex);
-//                    }
-//                    current_weight += countFurtherOccurrence(query, cs, unvisitedQueryVertices, tempCandidate.first, extendableDataVertex);
-                }
-                if (current_weight < minWeight){
-                    minWeight = current_weight;
-                    selectedCandidate = tempCandidate;
-                }
-            }
-        } else if (decision_switch == 3 ){
-            // BFS order search
-            for (Vertex BFS_vertex : topologicVector){
-                if (candidate.find(BFS_vertex) != candidate.end()){
-                    selectedCandidate = std::make_pair(BFS_vertex, candidate[BFS_vertex]);
-                }
-            }
-        } else if (decision_switch == 4 ){
-            // Max parent Number
-            int maxParentNumber = INT_MIN;
-            for (auto tempCandidate : candidate){
-                int parentNumber = getParentList(query, tempCandidate.first).size();
-                if (maxParentNumber < parentNumber){
-                    maxParentNumber = parentNumber;
-                    selectedCandidate = tempCandidate;
-                }
-            }
-        } else if (decision_switch == 5 ){
-            // Max parent Number
-            int maxChildNumber = INT_MIN;
-            for (auto tempCandidate : candidate){
-                int childNumber = getChildList(query, tempCandidate.first).size();
-                if (maxChildNumber < childNumber){
-                    maxChildNumber = childNumber;
-                    selectedCandidate = tempCandidate;
-                }
-            }
-        } else if (decision_switch == 6){
-            // find candidate with min |C_M(u)|/deg(u)
-            double minWeight = (double) INT_MAX;
-            double currentWeight;
-            for (auto tempCandidate : candidate){
-                currentWeight = (double) tempCandidate.second.size() / (double) getParentList(query, tempCandidate.first).size();
-                if (currentWeight < minWeight){
-                    minWeight = currentWeight;
-                    selectedCandidate = tempCandidate;
-
-                }
             }
         }
 
